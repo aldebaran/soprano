@@ -70,6 +70,9 @@ namespace Soprano {
              */
             Rule parseRule( const QString& line );
 
+
+            Rule genericRuleParsing( const QString& line );
+
             /**
              * Retrieve the rules parsed in parseFile and parseRule
              */

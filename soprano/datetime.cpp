@@ -25,6 +25,7 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QLocale>
+#include <QtCore/QStringList>
 
 #include <stdlib.h>
 
@@ -181,6 +182,13 @@ QDate Soprano::DateTime::fromDateString( const QString& s )
 
 QDateTime Soprano::DateTime::fromDateTimeString( const QString& s )
 {
+    // supporting function "now()" in sparql
+    QString stringCurrentDateTime = s;
+
+    QDateTime dateTime = QDateTime::fromString(stringCurrentDateTime.split(".").first(), "yyyy-MM-ddTHH:mm:ss");
+    if(dateTime.isValid())
+      return dateTime;
+
     // we support both the standard form and the often seen form which uses
     // a space instead of the T.
     int pos = s.indexOf('T');
@@ -198,6 +206,7 @@ QDateTime Soprano::DateTime::fromDateTimeString( const QString& s )
     if( pos > 0 ) {
         time = fromTimeString( s.mid( pos+1 ) );
         if( !time.isValid() ) {
+          time = QTime::currentTime();
             qDebug() << Q_FUNC_INFO << " invalid formatted datetime string: " << s << endl;
             return QDateTime();
         }

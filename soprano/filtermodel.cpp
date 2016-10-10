@@ -28,6 +28,9 @@
 
 #include <QtCore/QList>
 
+#include <qi/log.hpp>
+
+qiLogCategory("filtermodel");
 
 class Soprano::FilterModel::Private
 {
@@ -51,6 +54,10 @@ Soprano::FilterModel::FilterModel( Model* parent )
     : Model(),
       d( new Private() )
 {
+  if(!parent)
+  {
+    qiLogError() << "Error while creating model";
+  }
     setParentModel( parent );
 }
 
@@ -232,6 +239,7 @@ Soprano::Node Soprano::FilterModel::createBlankNode()
 {
     Q_ASSERT( d->parent );
     Node n = d->parent->createBlankNode();
+    n = Soprano::Node::createBlankNode(n.toString());
     setError( d->parent->lastError() );
     return n;
 }

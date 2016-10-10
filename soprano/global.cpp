@@ -23,6 +23,9 @@
 #include "pluginmanager.h"
 #include "backend.h"
 #include "storagemodel.h"
+#include "qi/log.hpp"
+
+qiLogCategory("global");
 
 static const Soprano::Backend* s_defaultBackend = 0;
 
@@ -65,5 +68,6 @@ Soprano::Model* Soprano::createModel( const BackendSettings& settings )
     if( s_defaultBackend )
         return s_defaultBackend->createModel( settings );
     else
-        return 0;
+      qiLogError() <<  "ERROR IN INIT SOPRANO";
+    return 0;
 }

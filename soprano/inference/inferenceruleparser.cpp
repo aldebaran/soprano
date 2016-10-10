@@ -25,6 +25,7 @@
 #include "nodepattern.h"
 #include "statementpattern.h"
 #include "node.h"
+#include "rdf.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QTextStream>
@@ -75,7 +76,10 @@ class Soprano::Inference::RuleParser::Private
 public:
     Private()
         : prefixLine( QLatin1String( "(?:[Pp][Rr][Ee][Ff][Ii][Xx])\\s+(\\S+)\\:\\s+<(\\S+)>" ) ),
-          ruleLine( QLatin1String( "\\[" "\\s*" "(\\w+)\\:" "\\s*" "(\\([^\\)]+\\))" "(?:\\s*\\,\\s*(\\([^\\)]+\\)))*" "\\s*" "\\-\\>" "\\s*" "(\\([^\\)]+\\))" "\\s*" "\\]" ) ),
+          ruleLine( QLatin1String( "\\[" "\\s*" "(\\w+)\\:" "\\s*" "(\!?\\([^\\)]+\\))" "(?:\\s*\\,\\s*(\!?\\([^\\)]+\\)))*" "\\s*" "\\-\\>" "\\s*" "(\\([^\\)]+\\))" "\\s*" "\\]" ) ),
+          ruleLineUpdate( QLatin1String( "\\[" "\\s*" "(\\w+)\\:" "\\s*" "(\\([^\\)]+\\))" "(?:\\s*\\,\\s*(\\([^\\)]+\\)))*" "\\s*" "\\-\\>\\>" "\\s*" "(\\([^\\)]+\\))" "\\s*" "\\]" ) ),
+          ruleLineXor( QLatin1String( "\\[" "\\s*" "(\\w+)\\:" "\\s*" "(\\([^\\)]+\\))" "(?:\\s*\\,\\s*(\\([^\\)]+\\)))*" "\\s*" "\\<\\-\\>" "\\s*" "(\\([^\\)]+\\))" "\\s*" "\\]" ) ),
+          ruleLineNegation( QLatin1String( "\\[" "\\s*" "(\\w+)\\:" "\\s*" "(\!?\\([^\\)]+\\))" "(?:\\s*\\,\\s*(\!?\\([^\\)]+\\)))*" "\\s*" "\\!\\-\\>" "\\s*" "(\\([^\\)]+\\))" "\\s*" "\\]" ) ),
           statementPattern( QLatin1String( "\\(" ) + QLatin1String( s_nodePattern ) + QLatin1String( "\\s*" ) + QLatin1String( s_nodePattern ) + QLatin1String( "\\s*" ) + QLatin1String( s_nodePattern ) + QLatin1String( "\\s*\\)" ) ) {
     }
 
@@ -155,11 +159,56 @@ public:
                                                      objectPattern );
     }
 
+    QList<Soprano::Inference::StatementPattern> createNegationStatementPattern( bool* success )
+    {
+      qDebug() << Q_FUNC_INFO << statementPattern.capturedTexts();
+      QString subject = statementPattern.cap( 1 );
+      QString predicate = statementPattern.cap( 2 );
+      QString object = statementPattern.cap( 3 );
+
+      qDebug() << "Parsed statement pattern: " << subject << predicate << object;
+
+      bool s1, s2, s3;
+      Soprano::Inference::NodePattern subjectPattern = parseNodePattern( subject, &s1 );
+      Soprano::Inference::NodePattern predicatePattern = parseNodePattern( predicate, &s2 );
+      Soprano::Inference::NodePattern objectPattern = parseNodePattern( object, &s3 );
+
+      *success = s1 && s2 && s3;
+
+      Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadataPredicate());
+
+      QList<Soprano::Inference::StatementPattern> negationPatterns;
+
+      negationPatterns.append(Soprano::Inference::StatementPattern(subjectPattern,
+                                                                   metadataPredicate,
+                                                                   Soprano::Inference::NodePattern("metadata")));
+
+      negationPatterns.append(Soprano::Inference::StatementPattern(predicatePattern,
+                                                                   metadataPredicate,
+                                                                   Soprano::Inference::NodePattern("metadata")));
+
+      negationPatterns.append(Soprano::Inference::StatementPattern(objectPattern,
+                                                                   metadataPredicate,
+                                                                   Soprano::Inference::NodePattern("metadata")));
+
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("disablingMetadata"),
+                                                                   Soprano::Node::createResourceNode(Vocabulary::RDF::isDisabled()),
+                                                                   Soprano::Inference::NodePattern("metadata")));
+
+      return negationPatterns;
+    }
+
+
+
+
     RuleSet rules;
     QHash<QString, QUrl> prefixes;
 
     QRegExp prefixLine;
     QRegExp ruleLine;
+    QRegExp ruleLineUpdate;
+    QRegExp ruleLineXor;
+    QRegExp ruleLineNegation;
     QRegExp statementPattern;
 };
 
@@ -208,35 +257,101 @@ bool Soprano::Inference::RuleParser::parseFile( const QString& path )
 
 Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QString& line )
 {
-    if ( d->ruleLine.exactMatch( line ) ) {
-        QString name = d->ruleLine.cap( 1 );
-        Rule newRule;
-        bool success = true;
+  QTextStream s( stdout );
 
-        // start with the effect statement pattern
-        int effectPos = d->statementPattern.lastIndexIn( line );
-        newRule.setEffect( d->parseMatchedStatementPattern( &success ) );
-        if ( !success )
-            return Rule();
+  QRegExp queryPattern(QLatin1String("(\\(select[^\\}]+\\}\\))"));
+  int effectPos = queryPattern.lastIndexIn(line);
+  queryPattern.capturedTexts();
+  QString condition = queryPattern.cap( 1 );
+  QString customizedLine = line;
+  customizedLine = customizedLine.remove(condition);
 
-        // get out all the condition patterns
-        int pos = 0;
-        while ( ( pos = d->statementPattern.indexIn( line, pos ) ) != -1 &&
-                pos < effectPos ) {
-            newRule.addPrecondition( d->parseMatchedStatementPattern( &success ) );
-            if ( !success ) {
-                return Rule();
-            }
-            pos += d->statementPattern.matchedLength();
-        }
+      Rule newRule = genericRuleParsing(customizedLine);
 
-        d->rules.insert( name, newRule );
-        return newRule;
+      condition.remove(0,1);
+      condition.remove(condition.size()-1,1);
+      if(condition.size()>0)
+      {
+        condition.prepend("PREFIX al: <http://aldebaran.org/learning#> \n");
+      }
+      newRule.setCondition(condition);
+
+    if ( d->ruleLine.exactMatch( customizedLine ) ) {
+      s << "ADD STANDARD RULE" << endl;
+//      Rule newRule = genericRuleParsing(customizedLine);
+      newRule.setEffectStyle("standard");
+      return newRule;
     }
+    else if (d->ruleLineUpdate.exactMatch( customizedLine ) )
+    {
+      s << "UPDATE INFERENCERULE" << endl;
+
+//      Rule newRule = genericRuleParsing(customizedLine);
+      newRule.setEffectStyle("update");
+      return newRule;
+    }
+    else if (d->ruleLineXor.exactMatch( customizedLine ) )
+    {
+      s << "XOR INFERENCERULE" << endl;
+
+//      Rule newRule = genericRuleParsing(customizedLine);
+      newRule.setEffectStyle("xor");
+      return newRule;
+    }
+    else if (d->ruleLineNegation.exactMatch( customizedLine ) )
+    {
+      s << "NEGATION INFERENCERULE" << endl;
+
+//      Rule newRule = genericRuleParsing(customizedLine);
+      newRule.setEffectStyle("negation");
+      return newRule;
+    }
+
     else {
-        qDebug() << "Failed to parse line: " << line;
+        qDebug() << "Failed to parse customizedLine: " << customizedLine;
         return Rule();
     }
+}
+
+
+Soprano::Inference::Rule Soprano::Inference::RuleParser::genericRuleParsing(const QString& line)
+{
+  QString name = d->ruleLine.cap( 1 );
+  Rule newRule;
+  bool success = true;
+
+  // start with the effect statement pattern
+  int effectPos = d->statementPattern.lastIndexIn( line );
+  newRule.setEffect( d->parseMatchedStatementPattern( &success ) );
+  if ( !success )
+    return Rule();
+
+  // get out all the condition patterns
+  int pos = 0;
+  while ( ( pos = d->statementPattern.indexIn( line, pos ) ) != -1 &&
+          pos < effectPos ) {
+
+    if(line[pos-1] == '!')
+    {
+      qDebug() << "ADD NEGATION PRECONDITION";
+      QList<Soprano::Inference::StatementPattern> negationStatementPatterns = d->createNegationStatementPattern(&success);
+      Q_FOREACH(Soprano::Inference::StatementPattern negationStatementPattern, negationStatementPatterns)
+      {
+        newRule.addPrecondition(negationStatementPattern);
+      }
+    }
+    else
+    {
+      newRule.addPrecondition( d->parseMatchedStatementPattern( &success ) );
+    }
+    if ( !success ) {
+      return Rule();
+    }
+    pos += d->statementPattern.matchedLength();
+  }
+
+  d->rules.insert( name, newRule );
+  return newRule;
 }
 
 

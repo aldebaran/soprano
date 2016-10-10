@@ -137,6 +137,17 @@ namespace Soprano {
              * Idiomatic property used for structured values. 
              */
             SOPRANO_EXPORT QUrl value();
+
+            SOPRANO_EXPORT QUrl metadataPredicate();
+
+            SOPRANO_EXPORT QUrl isDisabled();
+
+            SOPRANO_EXPORT QUrl createAldebaranRessource(QString ressourceName);
+
+//            SOPRANO_EXPORT QString getMetadataQuery(const QString& subject,
+//                                                    const QString& predicate,
+//                                                    const QString& object);
+
         }
     }
 }

@@ -26,6 +26,11 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QStringList>
+#include <QDateTime>
+
+#include <qi/log.hpp>
+
+qiLogCategory("statementpattern");
 
 
 class Soprano::Inference::StatementPattern::Private : public QSharedData
@@ -98,10 +103,28 @@ bool Soprano::Inference::StatementPattern::match( const Statement& s ) const
 
 QString Soprano::Inference::StatementPattern::createSparqlGraphPattern( const BindingSet& bindings ) const
 {
-    return QString( "%1 %2 %3" )
+  bool ok;
+  int hex = bindings[d->object.variableName()].toString().toInt(&ok, 10);
+  QString object;
+  if(ok)
+  {
+    object = NodePattern(Soprano::LiteralValue(hex)).createSparqlNodePattern( bindings ) ;
+  }
+  else if(bindings[d->object.variableName()].toString().endsWith("Z"))
+  {
+    QDateTime date = QDateTime::fromString(bindings[d->object.variableName()].toString(), Qt::ISODate);
+    object = NodePattern(Soprano::LiteralValue(date)).createSparqlNodePattern( bindings ) ;
+  }
+
+  else
+  {
+    object = d->object.createSparqlNodePattern( bindings );
+  }
+
+  return QString( "%1 %2 %3" )
         .arg( d->subject.createSparqlNodePattern( bindings ) )
         .arg( d->predicate.createSparqlNodePattern( bindings ) )
-        .arg( d->object.createSparqlNodePattern( bindings ) );
+        .arg( object );
 }
 
 
