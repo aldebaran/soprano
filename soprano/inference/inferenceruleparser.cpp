@@ -255,7 +255,7 @@ bool Soprano::Inference::RuleParser::parseFile( const QString& path )
 }
 
 
-Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QString& line )
+Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QString& line, QString ruleOrigin)
 {
   QTextStream s( stdout );
 
@@ -267,6 +267,8 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QStrin
   customizedLine = customizedLine.remove(condition);
 
       Rule newRule = genericRuleParsing(customizedLine);
+
+      newRule.setRuleOrigin(ruleOrigin);
 
       condition.remove(0,1);
       condition.remove(condition.size()-1,1);

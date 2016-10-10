@@ -40,6 +40,7 @@ public:
     Statement bindingStatement;
     QString effectStyle;
     QString condition;
+    QString origin;
 
     // Map containing the historic of bindings during inference.
     // this allow to make sure that bindings are used on time
@@ -464,6 +465,15 @@ bool Soprano::Inference::Rule::isValid() const
     return !d->preconditions.isEmpty() && d->effect.isValid();
 }
 
+void Soprano::Inference::Rule::setRuleOrigin(const QString& ruleOrigin)
+{
+  d->origin = ruleOrigin;
+}
+
+QString Soprano::Inference::Rule::getRuleOrigin() const
+{
+  return d->origin;
+}
 
 QDebug operator<<( QDebug s, const Soprano::Inference::Rule& rule )
 {
