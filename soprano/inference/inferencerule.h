@@ -104,6 +104,10 @@ namespace Soprano {
 
             void setCondition(const QString& condition);
 
+            void setRuleOrigin(const QString& origin);
+
+            QString getRuleOrigin() const;
+
 
             /**
              * Check if a statement matches any of the statement patterns

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.8.9 FATAL_ERROR)
 project(soprano)
 find_package(qibuild)
-qi_sanitize_compile_flags()
+#qi_sanitize_compile_flags()
 #find_package(aldebaran-settings)
 
 include(qibuild/modules/qt5-tools)

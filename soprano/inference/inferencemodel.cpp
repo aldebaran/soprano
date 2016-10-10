@@ -374,6 +374,7 @@ void Soprano::Inference::InferenceModel::performInference()
 {
     for ( QList<Rule>::iterator it = d->rules.begin();
           it != d->rules.end(); ++it ) {
+      d->bindingMapHistory.clear();
         // reset the binding statement, we want to infer it all
         Rule& rule = *it;
         rule.bindToStatement( Statement() );
@@ -404,6 +405,7 @@ int Soprano::Inference::InferenceModel::inferStatement( const Statement& stateme
     int cnt = 0;
     for ( QList<Rule>::iterator it = d->rules.begin();
           it != d->rules.end(); ++it ) {
+      d->bindingMapHistory.clear();
 
         Rule& rule = *it;
         if( rule.match( statement) ) {
@@ -698,6 +700,8 @@ bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet bindin
     }
 
 
+//    if(sortedBindingMap.keys().size() == 0)
+//      return false;
 
   Q_FOREACH(QString bindingName, sortedBindingMap.keys())
   {
@@ -710,7 +714,10 @@ bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet bindin
 //    if (d->bindingMapHistory.values().contains(binding.value(name).toString()))
     if (d->bindingMapHistory.values().contains(sortedBindingMap[bindingName]))
     {
+      if(d->bindingMapHistory[bindingName] != sortedBindingMap[bindingName])
+      {
       sameBinding = true;
+      }
     }
     else
     {
