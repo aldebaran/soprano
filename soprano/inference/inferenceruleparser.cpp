@@ -175,12 +175,14 @@ public:
 
       *success = s1 && s2 && s3;
 
-      Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadataPredicate());
+      Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
+      Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
+      Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
 
       QList<Soprano::Inference::StatementPattern> negationPatterns;
 
       negationPatterns.append(Soprano::Inference::StatementPattern(subjectPattern,
-                                                                   metadataPredicate,
+                                                                   metadataSubject,
                                                                    Soprano::Inference::NodePattern("metadata")));
 
       negationPatterns.append(Soprano::Inference::StatementPattern(predicatePattern,
@@ -188,7 +190,7 @@ public:
                                                                    Soprano::Inference::NodePattern("metadata")));
 
       negationPatterns.append(Soprano::Inference::StatementPattern(objectPattern,
-                                                                   metadataPredicate,
+                                                                   metadataObject,
                                                                    Soprano::Inference::NodePattern("metadata")));
 
       negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("disablingMetadata"),

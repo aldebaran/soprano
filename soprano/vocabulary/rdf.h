@@ -138,7 +138,7 @@ namespace Soprano {
              */
             SOPRANO_EXPORT QUrl value();
 
-            SOPRANO_EXPORT QUrl metadataPredicate();
+            SOPRANO_EXPORT QUrl metadata(QString nodeType);
 
             SOPRANO_EXPORT QUrl isDisabled();
 

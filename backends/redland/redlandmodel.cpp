@@ -221,9 +221,9 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
 
   QString query =  "PREFIX al:<http://aldebaran.org/learning#> \n"
       "select ?sourceStatement where { graph <http://soprano.org/sil#InferenceMetaData> {"
-      "<" + statement.subject().toString() + ">" + " al:metadata ?metadata . \n"
-      "<" + statement.predicate().toString() + ">" + " al:metadata ?metadata . \n"
-      "<" + statement.object().toString() + ">" + " al:metadata ?metadata . \n"
+      "<" + statement.subject().toString() + ">" + " al:metadataSubject ?metadata . \n"
+      "<" + statement.predicate().toString() + ">" + " al:metadataPredicate ?metadata . \n"
+      "<" + statement.object().toString() + ">" + " al:metadataObject ?metadata . \n"
       "?sourceStatement al:isDisabled ?metadata .} }";
 
 
