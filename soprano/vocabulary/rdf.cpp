@@ -41,7 +41,9 @@ public:
           rdf_subject( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject", QUrl::StrictMode ) ),
           rdf_type( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", QUrl::StrictMode ) ),
           rdf_value( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#value", QUrl::StrictMode ) ),
-          rdf_metadataPredicate( QUrl::fromEncoded( "http://aldebaran.org/learning#metadata", QUrl::StrictMode ) ),
+          rdf_metadataSubject( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataSubject", QUrl::StrictMode ) ),
+          rdf_metadataPredicate( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataPredicate", QUrl::StrictMode ) ),
+          rdf_metadataObject( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataObject", QUrl::StrictMode ) ),
           rdf_isDisabled( QUrl::fromEncoded( "http://aldebaran.org/learning#isDisabled", QUrl::StrictMode ) )
     {
     }
@@ -62,7 +64,9 @@ public:
     QUrl rdf_subject;
     QUrl rdf_type;
     QUrl rdf_value;
+    QUrl rdf_metadataSubject;
     QUrl rdf_metadataPredicate;
+    QUrl rdf_metadataObject;
     QUrl rdf_isDisabled;
 };
 
@@ -153,9 +157,21 @@ QUrl Soprano::Vocabulary::RDF::value()
     return s_rdf()->rdf_value;
 }
 
-QUrl Soprano::Vocabulary::RDF::metadataPredicate()
+QUrl Soprano::Vocabulary::RDF::metadata(QString nodeType)
 {
+  if(nodeType == "subject")
+  {
+    return s_rdf()->rdf_metadataSubject;
+  }
+  else if(nodeType == "predicate")
+  {
     return s_rdf()->rdf_metadataPredicate;
+  }
+  else if(nodeType == "object")
+  {
+      return s_rdf()->rdf_metadataObject;
+  }
+  return QUrl();
 }
 
 QUrl Soprano::Vocabulary::RDF::isDisabled()
