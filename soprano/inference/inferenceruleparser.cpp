@@ -272,6 +272,12 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QStrin
 
       newRule.setRuleOrigin(ruleOrigin);
 
+      QRegExp ruleRegex = QRegExp("\\[[^:]*:([^\\]]*)\\]");
+      ruleRegex.lastIndexIn(line);
+      ruleRegex.capturedTexts();
+      QString stringRule = ruleRegex.cap(1);
+      newRule.setString(stringRule.trimmed());
+
       condition.remove(0,1);
       condition.remove(condition.size()-1,1);
       if(condition.size()>0)
@@ -333,7 +339,7 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::genericRuleParsing(cons
   // get out all the condition patterns
   int pos = 0;
   while ( ( pos = d->statementPattern.indexIn( line, pos ) ) != -1 &&
-          pos < effectPos ) {
+          pos < effectPos && pos >= 1) {
 
     if(line[pos-1] == '!')
     {

@@ -27,6 +27,7 @@
 #include <QtCore/QString>
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
+#include <QtCore/QUuid>
 #include <qi/log.hpp>
 
 qiLogCategory("inferencerule");
@@ -41,6 +42,8 @@ public:
     QString effectStyle;
     QString condition;
     QString origin;
+    QString ruleId;
+    QString ruleString;
 
     // Map containing the historic of bindings during inference.
     // this allow to make sure that bindings are used on time
@@ -55,6 +58,7 @@ Soprano::Inference::Rule::Rule()
     : d( new Private() )
 {
   d->bindingAlreadyUsed = false;
+  d->ruleId = QUuid::createUuid().toString();
 }
 
 
@@ -455,7 +459,6 @@ QList<Soprano::Statement> Soprano::Inference::Rule::bindPreconditions( const Bin
     return sl;
 }
 
-
 bool Soprano::Inference::Rule::isValid() const
 {
     return !d->preconditions.isEmpty() && d->effect.isValid();
@@ -470,6 +473,21 @@ QString Soprano::Inference::Rule::getRuleOrigin() const
 {
   return d->origin;
 }
+
+QString Soprano::Inference::Rule:: getId() const
+{
+  return d->ruleId;
+}
+
+ void Soprano::Inference::Rule::setString(const QString& ruleString)
+ {
+   d->ruleString = ruleString;
+ }
+
+ QString Soprano::Inference::Rule::getString() const
+ {
+   return d->ruleString;
+ }
 
 QDebug operator<<( QDebug s, const Soprano::Inference::Rule& rule )
 {

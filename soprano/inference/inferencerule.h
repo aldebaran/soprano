@@ -108,6 +108,11 @@ namespace Soprano {
 
             QString getRuleOrigin() const;
 
+            QString getId() const;
+
+            void setString(const QString& ruleString);
+
+            QString getString() const;
 
             /**
              * Check if a statement matches any of the statement patterns
