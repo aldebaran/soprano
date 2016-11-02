@@ -95,7 +95,7 @@ static QUrl createRandomUri()
 class Soprano::Inference::InferenceModel::Private
 {
 public:
-    QList<Rule> rules;
+    QMap<QString, Rule> ruleMap;
     bool compressedStatements;
     bool optimizedQueries;
     QMap <QString, QString> bindingMapHistory;
@@ -129,21 +129,33 @@ void Soprano::Inference::InferenceModel::setOptimizedQueriesEnabled( bool b )
 }
 
 
-void Soprano::Inference::InferenceModel::addRule( const Rule& rule )
+QString Soprano::Inference::InferenceModel::addRule( const Rule& rule )
 {
-    d->rules.append( rule );
+  QString ruleId = rule.getId();
+  d->ruleMap.insert(ruleId, rule);
+  return ruleId;
 }
 
 
 void Soprano::Inference::InferenceModel::setRules( const QList<Rule>& rules )
 {
-    d->rules = rules;
+  d->ruleMap.clear();
+  Q_FOREACH(Rule rule, rules)
+  {
+    d->ruleMap.insert(rule.getId(), rule);
+  }
 }
+
+void Soprano::Inference::InferenceModel::removeRule(const QString& ruleId)
+{
+  d->ruleMap.remove(ruleId);
+}
+
 
 
 QList<Soprano::Inference::Rule> Soprano::Inference::InferenceModel::getRules()
 {
-    return d->rules;
+  return d->ruleMap.values();
 }
 
 
@@ -380,14 +392,15 @@ QList<Soprano::Node> Soprano::Inference::InferenceModel::inferedGraphsForStateme
 
 void Soprano::Inference::InferenceModel::performInference()
 {
-    for ( QList<Rule>::iterator it = d->rules.begin();
-          it != d->rules.end(); ++it ) {
-      d->bindingMapHistory.clear();
-        // reset the binding statement, we want to infer it all
-        Rule& rule = *it;
-        rule.bindToStatement( Statement() );
-        inferRule( rule, true );
-    }
+  QList<Rule> rules = d->ruleMap.values();
+  for ( QList<Rule>::iterator it = rules.begin();
+        it != rules.end(); ++it ) {
+    d->bindingMapHistory.clear();
+    // reset the binding statement, we want to infer it all
+    Rule& rule = *it;
+    rule.bindToStatement( Statement() );
+    inferRule( rule, true );
+  }
 }
 
 
@@ -415,8 +428,9 @@ void Soprano::Inference::InferenceModel::clearInference()
 int Soprano::Inference::InferenceModel::inferStatement( const Statement& statement, bool recurse )
 {
     int cnt = 0;
-    for ( QList<Rule>::iterator it = d->rules.begin();
-          it != d->rules.end(); ++it ) {
+    QList<Rule> rules = d->ruleMap.values();
+    for ( QList<Rule>::iterator it = rules.begin();
+          it != rules.end(); ++it ) {
       d->bindingMapHistory.clear();
 
         Rule& rule = *it;

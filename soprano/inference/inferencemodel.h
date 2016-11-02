@@ -98,7 +98,7 @@ namespace Soprano {
              * This method will not trigger any inference action. If inference
              * is necessary call performInference() after adding the new rules.
              */
-            void addRule( const Rule& );
+            QString addRule( const Rule& );
 
             /**
              * Set the inference rules to be used.
@@ -106,6 +106,11 @@ namespace Soprano {
              * is necessary call performInference() after adding the new rules.
              */
             void setRules( const QList<Rule>& rules );
+
+            /**
+             * Remove the rule indexed by the given id.
+             */
+            void removeRule(const QString& ruleId);
 
             /**
              * Retrieve the rules
