@@ -648,7 +648,8 @@ int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurs
           }
           else
           {
-
+            // Create metadataStatement for inferedStatements
+            createMetadataNode(inferedStatement);
             parentModel()->addStatement( inferedStatement );
           }
 
@@ -832,17 +833,17 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
   Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
   Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
 
-  addStatement(statement.subject(),
+  parentModel()->addStatement(statement.subject(),
                               metadataSubject,
                               metaDataNode,
                               Vocabulary::SIL::InferenceMetaData());
 
-  addStatement(statement.predicate(),
+  parentModel()->addStatement(statement.predicate(),
                               metadataPredicate,
                               metaDataNode,
                               Vocabulary::SIL::InferenceMetaData());
 
-  addStatement(statement.object(),
+  parentModel()->addStatement(statement.object(),
                               metadataObject,
                               metaDataNode,
                               Vocabulary::SIL::InferenceMetaData());
