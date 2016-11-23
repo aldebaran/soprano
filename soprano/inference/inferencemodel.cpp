@@ -40,6 +40,8 @@
 
 qiLogCategory("inferencemodel");
 
+QString learningDomain = "com.aldebaran.learning";
+
 // FIXME: add error handling!
 
 static Soprano::Node compressStatement( const Soprano::Statement& statement )
@@ -798,9 +800,9 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
 {
   QString query = "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
       "select ?metadata where {"
-      + "<" + sourceStatement.subject().toString() + ">" + " al:metadataSubject ?metadata . \n"
-      + "<" + sourceStatement.predicate().toString() + ">" + " al:metadataPredicate ?metadata . \n"
-      + "<" + sourceStatement.object().toString() + ">" + " al:metadataObject ?metadata .}";
+      + "<" + xUrlConversion(sourceStatement.subject()) + ">" + " al:metadataSubject ?metadata . \n"
+      + "<" + xUrlConversion(sourceStatement.predicate()) + ">" + " al:metadataPredicate ?metadata . \n"
+      + "<" + xUrlConversion(sourceStatement.object()) + ">" + " al:metadataObject ?metadata .}";
 
   Soprano::QueryResultIterator it = executeQuery(query,
                                                  Soprano::Query::QueryLanguageSparql);
@@ -816,6 +818,18 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
   }
 
   return Soprano::Node();
+}
+
+
+QString Soprano::Inference::InferenceModel::xUrlConversion(const Soprano::Node& node)
+{
+  QStringList splitedNode = node.toString().split("http://aldebaran.org/learning#");
+
+  if(splitedNode.size() < 2)
+    return node.toString();
+
+  QString nodeValue = "http://aldebaran.org/learning#" +QUrl::toPercentEncoding(splitedNode[1]);
+  return nodeValue;
 }
 
 Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const Statement& statement)
