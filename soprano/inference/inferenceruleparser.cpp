@@ -35,6 +35,8 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
+QString alPrefix = "http://aldebaran.org/learning#";
+
 namespace {
     // Match a node
     const char* s_nodePattern =
@@ -261,11 +263,22 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QStrin
 {
   QTextStream s( stdout );
 
+    QRegExp parseAL = QRegExp("al:([^ ^)]*)");
+
+  int pos = 0;
+
+  QString encodedLine = line;
+
+  while ((pos = parseAL.indexIn(line, pos)) != -1) {
+    encodedLine.replace("al:" + parseAL.cap(1), "<" + alPrefix + QUrl::toPercentEncoding(parseAL.cap(1))+">");
+    pos+=parseAL.matchedLength();
+  }
+
   QRegExp queryPattern(QLatin1String("(\\(select[^\\}]+\\}\\))"));
-  int effectPos = queryPattern.lastIndexIn(line);
+  int effectPos = queryPattern.lastIndexIn(encodedLine);
   queryPattern.capturedTexts();
   QString condition = queryPattern.cap( 1 );
-  QString customizedLine = line;
+  QString customizedLine = encodedLine;
   customizedLine = customizedLine.remove(condition);
 
       Rule newRule = genericRuleParsing(customizedLine);
@@ -276,13 +289,14 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QStrin
       ruleRegex.lastIndexIn(line);
       ruleRegex.capturedTexts();
       QString stringRule = ruleRegex.cap(1);
+
       newRule.setString(stringRule.trimmed());
 
       condition.remove(0,1);
       condition.remove(condition.size()-1,1);
       if(condition.size()>0)
       {
-        condition.prepend("PREFIX al: <http://aldebaran.org/learning#> \n");
+        condition.prepend("PREFIX al: <" + alPrefix + "> \n");
       }
       newRule.setCondition(condition);
 

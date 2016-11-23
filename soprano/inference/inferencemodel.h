@@ -229,6 +229,13 @@ namespace Soprano {
 
             void cleanMetadata(Soprano::Node metadataNode);
 
+
+            /**
+             * For sparql queries nodes should be url compliant so we need to percent encoding them
+             * \return Percent encoded url
+             */
+            QString xUrlConversion(const Soprano::Node& node);
+
             class Private;
             Private* const d;
         };
