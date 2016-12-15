@@ -918,11 +918,31 @@ Soprano::Statement Soprano::Inference::InferenceModel::getStatementFromMetadataN
     statement.setSubject(metadataSubjectStatement[0].subject());
     statement.setPredicate(metadataPredicateStatement[0].subject());
     statement.setObject(metadataObjectStatement[0].subject());
+    return statement;
   }
-  else
+
+  if(metadataSubjectStatement.size() < 1 ||
+     metadataPredicateStatement.size() < 1 ||
+     metadataObjectStatement.size() < 1)
   {
-    qiLogError() << " More than 3 metadata nodes are linked to this node";
+    qiLogInfo() << "This id does not correspond to any triplet";
   }
+  else if (metadataSubjectStatement.size() > 1 ||
+           metadataPredicateStatement.size() > 1 ||
+           metadataObjectStatement.size() > 1)
+  {
+    qiLogInfo() << " More than 3 metadata nodes are linked to this node";
+  }
+
+  //Removing all incoherent triplets link to this metadaNode.
+  removeAllStatements(metadataNode,
+                      Soprano::Node::createEmptyNode(),
+                      Soprano::Node::createEmptyNode(),
+                      Soprano::Node::createEmptyNode());
+  removeAllStatements(Soprano::Node::createEmptyNode(),
+                      Soprano::Node::createEmptyNode(),
+                      metadataNode,
+                      Soprano::Node::createEmptyNode());
 
   return statement;
 }
