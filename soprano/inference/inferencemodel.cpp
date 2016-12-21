@@ -70,15 +70,19 @@ static Soprano::Statement uncompressStatement( const Soprano::Node& compressedSt
   return uncompressedStatement;
 }
 
+static QString createUuid()
+{
+    // FIXME: check if the uri already exists
+     QString uid = QUuid::createUuid().toString();
+    uid = uid.mid( 1, uid.length()-2 );
+
+    return uid;
+}
 
 static QUrl createRandomUri()
 {
-    // FIXME: check if the uri already exists
-    QString uid = QUuid::createUuid().toString();
-    uid = uid.mid( 1, uid.length()-2 );
-    return QUrl( "inference://localhost#" + uid );
+    return QUrl( "inference://localhost#" + createUuid());
 }
-
 
 // this is stuff we only need for the temp implementation that is used due to the lack of proper SPARQL support in redland
 // -----------------------------------------------------------------------------------------------------------------------
@@ -162,11 +166,15 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeAllStatement
 
     // are there any rules that handle objects? Probably not.
       QTextStream s( stdout );
-    if ( !statement.object().isLiteral() ) {
+      /////////////////////////
+      /// IT'S NOT POSSIBLE TO REMOVE LITERAL NODE ???
+      /////////////////////////
+//    if ( !statement.object().isLiteral() ) {
         // we need to list statements first and then iterate over all that will be removed
         // since we change the model we also have to cache the statements
 
         QList<Statement> removedStatements = parentModel()->listStatements( statement ).allStatements();
+
         for ( QList<Statement>::const_iterator it2 = removedStatements.constBegin();
               it2 != removedStatements.constEnd(); ++it2 ) {
 
@@ -176,7 +184,7 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeAllStatement
                 return c;
             }
         }
-    }
+//    }
 
     return Error::ErrorNone;
 }
@@ -410,9 +418,9 @@ int Soprano::Inference::InferenceModel::inferStatement( const Statement& stateme
         Rule& rule = *it;
         if( rule.match( statement) ) {
             rule.bindToStatement( statement );
-            qiLogError() << "Subject " << statement.subject().toString().toStdString();
-            qiLogError() << "Predicate " << statement.predicate().toString().toStdString();
-            qiLogError() << "Object " << statement.object().toString().toStdString();
+            qDebug() << "Subject " << statement.subject().toString();
+            qDebug() << "Predicate " << statement.predicate().toString();
+            qDebug() << "Object " << statement.object().toString();
             cnt += inferRule( rule, recurse );
         }
     }
@@ -482,7 +490,7 @@ int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurs
 
       if(sameBinding)
       {
-        qiLogError() << "Same binding not infering";
+        qDebug() << "Same binding not infering";
         continue;
       }
 //      else
@@ -684,17 +692,17 @@ int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurs
 bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet binding)
 {
   bool sameBinding = false;
-    qiLogError() << "###################";
+    qDebug() << "###################";
 
     QMap <QString, QString> sortedBindingMap;
 
     Q_FOREACH(QString name, binding.bindingNames())
     {
-    qiLogError() << "-------------------";
-          qiLogError() << name.toStdString();
-    qiLogError() << binding[name].toString().toStdString();
+      qDebug() << "-------------------";
+      qDebug() << name;
+      qDebug() << binding[name].toString();
 
-    qiLogError() << "-------------------";
+      qDebug() << "-------------------";
       if(!sortedBindingMap.keys().contains(name) || sortedBindingMap[name] != binding[name].toString())
         sortedBindingMap[name] = binding[name].toString();
     }
@@ -708,8 +716,8 @@ bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet bindin
 //    qiLogError() << name.toStdString();
 //    qiLogError() << binding[name].toString().toStdString();
 
-    qiLogError() << bindingName.toStdString();
-    qiLogError() << sortedBindingMap[bindingName].toStdString();
+    qDebug() << bindingName;
+    qDebug() << sortedBindingMap[bindingName];
 
 //    if (d->bindingMapHistory.values().contains(binding.value(name).toString()))
     if (d->bindingMapHistory.values().contains(sortedBindingMap[bindingName]))
@@ -725,7 +733,7 @@ bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet bindin
       d->bindingMapHistory.insert(bindingName, sortedBindingMap[bindingName]);
     }
   }
-    qiLogError() << "###################";
+    qDebug() << "###################";
   if(sameBinding)
   {
     d->bindingMapHistory.clear();
@@ -778,14 +786,15 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
   Soprano::QueryResultIterator it = executeQuery(query,
                                                  Soprano::Query::QueryLanguageSparql);
 
-  Q_FOREACH(Soprano::BindingSet bs, it.allBindings())
+  QList<BindingSet> bindings = it.allBindings();
+
+  Q_FOREACH(Soprano::BindingSet bs, bindings)
   {
     Q_FOREACH(QString bindingName, bs.bindingNames())
     {
       return bs.value(bindingName);
     }
   }
-
 
   return Soprano::Node();
 }
@@ -798,7 +807,8 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
     return metaDataNode;
   }
 
-  metaDataNode = Soprano::Node::createResourceNode(createRandomUri());
+  metaDataNode = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource(createUuid()));
+//  metaDataNode = Soprano::Node::createResourceNode(createRandomUri());
 
   Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadataPredicate());
 
@@ -816,6 +826,10 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
                               metadataPredicate,
                               metaDataNode,
                               Vocabulary::SIL::InferenceMetaData());
+
+//  if(getMetadataNode(statement).isEmpty())
+//    std::cout << "WHAT THE FUCK" << std::endl;
+
   return metaDataNode;
 }
 
@@ -831,4 +845,28 @@ void Soprano::Inference::InferenceModel::cleanMetadata(Soprano::Node metadataNod
                                                                   metadataNode,
                                                                   Vocabulary::SIL::InferenceMetaData()).allStatements());
   }
+}
+
+Soprano::Statement Soprano::Inference::InferenceModel::getStatementFromMetadataNode(Soprano::Node metadataNode)
+{
+  Soprano::Statement statement;
+
+  QList<Statement> statements = listStatements(Soprano::Node::createEmptyNode(),
+                                                                  Vocabulary::RDF::metadataPredicate(),
+                                                                  metadataNode,
+                                                                  Vocabulary::SIL::InferenceMetaData()).allStatements();
+
+  if(statements.size() == 3)
+  {
+    statement.setSubject(statements[0].subject());
+    statement.setPredicate(statements[1].subject());
+    statement.setObject(statements[2].subject());
+  }
+  else
+  {
+    qiLogError() << "Several statements are linked to the same metadata node. Number of node is "
+                 << statements.size();
+  }
+
+  return statement;
 }

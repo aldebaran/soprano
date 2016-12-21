@@ -295,12 +295,8 @@ Soprano::Statement Soprano::Inference::Rule::bindStatementPattern2( const Statem
     Statement s;
     if ( pattern.subjectPattern().isVariable() ) {
         s.setSubject( bindings[pattern.subjectPattern().variableName()] );
-        QString subjectVariableName = pattern.subjectPattern().variableName();
-        QString subjectVariableValue = bindings[pattern.subjectPattern().variableName()].toString();
-        qiLogError() << "++++++++++++";
-        qiLogError() << subjectVariableName.toStdString();
-        qiLogError() << subjectVariableValue.toStdString();
-        qiLogError() << "++++++++++++";
+//        QString subjectVariableName = pattern.subjectPattern().variableName();
+//        QString subjectVariableValue = bindings[pattern.subjectPattern().variableName()].toString();
 
 
 //                Q_FOREACH(QString key, d->bindingHistory.keys())
@@ -346,10 +342,10 @@ Soprano::Statement Soprano::Inference::Rule::bindStatementPattern2( const Statem
         s.setObject( bindings[pattern.objectPattern().variableName()] );
         QString objectVariableName = pattern.objectPattern().variableName();
         QString objectVariableValue = bindings[pattern.objectPattern().variableName()].toString();
-        qiLogError() << "============";
-        qiLogError() << objectVariableName.toStdString();
-        qiLogError() << objectVariableValue.toStdString();
-        qiLogError() << "============";
+        qDebug() << "============";
+        qDebug() << objectVariableName;
+        qDebug() << objectVariableValue;
+        qDebug() << "============";
 
 //                        Q_FOREACH(QString key, d->bindingHistory.keys())
 //        {

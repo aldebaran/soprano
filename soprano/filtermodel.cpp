@@ -102,6 +102,12 @@ void Soprano::FilterModel::setParentModel( Model* model )
 
 Soprano::Error::ErrorCode Soprano::FilterModel::addStatement( const Statement &statement )
 {
+//   Prevent triplet to be added several times
+  if(containsAnyStatement(statement))
+  {
+    return Soprano::Error::ErrorNone;
+  }
+
     Q_ASSERT( d->parent );
     Error::ErrorCode c = d->parent->addStatement( statement );
     setError( d->parent->lastError() );

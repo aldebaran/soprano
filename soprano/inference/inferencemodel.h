@@ -115,6 +115,14 @@ namespace Soprano {
             using FilterModel::addStatement;
             using FilterModel::removeStatement;
             using FilterModel::removeAllStatements;
+
+            Soprano::Node createMetadataNode(const Statement& statement);
+
+            Soprano::Node getMetadataNode(const Statement& statement);
+
+            Statement getStatementFromMetadataNode(Soprano::Node metadataNode);
+
+
         
         public Q_SLOTS:
             /**
@@ -165,7 +173,6 @@ namespace Soprano {
              */
             void setOptimizedQueriesEnabled( bool b );
 
-            Soprano::Node createMetadataNode(const Statement& statement);
 
         private:
             /**
@@ -212,9 +219,6 @@ namespace Soprano {
              * \return The URI of the uncompressed source statement resource.
              */
             QUrl storeUncompressedSourceStatement( const Statement& sourceStatement );
-
-            Soprano::Node getMetadataNode(const Statement& statement);
-
 
             QList<Soprano::Node> getDisablingMetadata(const Soprano::Node& statementMetadata);
 

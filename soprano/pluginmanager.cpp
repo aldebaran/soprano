@@ -303,8 +303,10 @@ void Soprano::PluginManager::loadAllPlugins()
 
     qDebug() << "+++++++++++++++++++++++++++++";
     qDebug() << test;
+    qDebug() << pluginFile;
     qDebug() << "_____________________________";
 
+//    pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-desktop-knowledge/sdk/share/dialog/redlandbackend.desktop";
 
         loadPlugin(pluginFile);
 
