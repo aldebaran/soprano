@@ -113,7 +113,6 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
     QString os = createRedlandOptionString( redlandOptions );
 
     qDebug() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType << "with options" << os;
-    qiLogError() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType.toStdString() << "with options" << os.toStdString();
 
 //    World* world = new World();
     World* world = World::theWorld();
@@ -135,7 +134,7 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
         librdf_free_storage( storage );
         setError( world->lastError() );
 //        delete world;
-        qiLogError() << "JE SAIs PAS ! :'( ";
+        qDebug() << "JE SAIs PAS ! :'( ";
         return 0;
     }
     return new RedlandModel( this, model, storage, world );

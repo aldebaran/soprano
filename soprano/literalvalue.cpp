@@ -262,8 +262,12 @@ Soprano::LiteralValue::LiteralValue( const QTime& time )
 }
 
 
+
+
+
 Soprano::LiteralValue::LiteralValue( const QDateTime& datetime )
-    : d( new TypedData( datetime.toUTC() ) )
+    : d( new TypedData( datetime ) )
+//    : d( new TypedData( datetime.toUTC() ) )
 {
 }
 
