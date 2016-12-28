@@ -212,45 +212,46 @@ librdf_model *Soprano::Redland::RedlandModel::redlandModel() const
 
 Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const Statement &statement )
 {
-//  QString query = Vocabulary::RDF::getMetadataQuery(statement.subject().toString(),
-//                                                    statement.object().toString(),
-//                                                    statement.predicate().toString());
+  Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
+  Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
+  Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
+  Soprano::Node isDisabled = Soprano::Node::createResourceNode(Vocabulary::RDF::isDisabled());
 
+  Soprano::Statement isDisabledStatement = Soprano::Statement(Soprano::Node::createEmptyNode(),
+                                                         isDisabled,
+                                                         Soprano::Node::createEmptyNode(),
+                                                         Soprano::Node::createEmptyNode());
 
-//  QString query =  "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
+  Soprano::StatementIterator statements = listStatements(isDisabledStatement);
 
-  QString query =  "PREFIX al:<http://aldebaran.org/learning#> \n"
-      "select ?sourceStatement where { graph <http://soprano.org/sil#InferenceMetaData> {"
-      "<" + statement.subject().toString() + ">" + " al:metadataSubject ?metadata . \n"
-      "<" + statement.predicate().toString() + ">" + " al:metadataPredicate ?metadata . \n"
-      "<" + statement.object().toString() + ">" + " al:metadataObject ?metadata . \n"
-      "?sourceStatement al:isDisabled ?metadata .} }";
-
-
-  Soprano::QueryResultIterator it = executeQuery(query,
-                                                 Soprano::Query::QueryLanguageSparql);
-
-  QStringList results;
-
-  Q_FOREACH(Soprano::BindingSet bs, it.allBindings())
+  while(statements.next())
   {
-    Q_FOREACH(QString bindingName, bs.bindingNames())
+    Soprano::Statement metaObjectStatement = Soprano::Statement(statement.object(),
+                                                                metadataObject,
+                                                                statements.current().object(),
+                                                                Soprano::Node::createEmptyNode());
+    Soprano::Statement metaPredicateStatement = Soprano::Statement(statement.predicate(),
+                                                                   metadataPredicate,
+                                                                   statements.current().object(),
+                                                                   Soprano::Node::createEmptyNode());
+    Soprano::Statement metaSubjectStatement = Soprano::Statement(statement.subject(),
+                                                                 metadataSubject,
+                                                                 statements.current().object(),
+                                                                 Soprano::Node::createEmptyNode());
+
+    if(
+       containsAnyStatement(metaObjectStatement) &&
+       containsAnyStatement(metaPredicateStatement) &&
+       containsAnyStatement(metaSubjectStatement))
     {
-      if(bs.value(bindingName).toString() != "")
-      {
-        results.append(bs.value(bindingName).toString());
-      }
+      return Error::ErrorNegation;
     }
   }
 
-  if(!results.empty())
-    return Error::ErrorNegation;
-
-
-    if ( !statement.isValid() ) {
-        setError( "Cannot add invalid statement", Error::ErrorInvalidArgument );
-        return Error::ErrorInvalidArgument;
-    }
+  if ( !statement.isValid() ) {
+    setError( "Cannot add invalid statement", Error::ErrorInvalidArgument );
+    return Error::ErrorInvalidArgument;
+  }
 
     clearError();
 
