@@ -219,7 +219,7 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeStatement( c
       Soprano::StatementIterator disabledStatements = parentModel()->listStatements(getMetadataNode(statement),
                                                                                     Vocabulary::RDF::isDisabled(),
                                                                                     Soprano::Node::createEmptyNode(),
-                                                                                    Vocabulary::SIL::InferenceMetaData());
+                                                                                    Soprano::Node::createEmptyNode());
 
 
       QList<Soprano::Node> disablingMetadataNodes;
@@ -230,7 +230,7 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeStatement( c
         Soprano::StatementIterator disablingStatements =  parentModel()->listStatements(Soprano::Node::createEmptyNode(),
                                                                                         Vocabulary::RDF::isDisabled(),
                                                                                         disabledStatements.current().object(),
-                                                                                        Vocabulary::SIL::InferenceMetaData());
+                                                                                        Soprano::Node::createEmptyNode());
 
         QList<Statement> allDisablingStatements = disablingStatements.allStatements();
 
@@ -248,7 +248,7 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeStatement( c
         FilterModel::removeStatements(parentModel()->listStatements(disablingMetadataNode,
                                                                     Vocabulary::RDF::isDisabled(),
                                                                     Soprano::Node::createEmptyNode(),
-                                                                    Vocabulary::SIL::InferenceMetaData()).allStatements());
+                                                                    Soprano::Node::createEmptyNode()).allStatements());
 
 
       }
@@ -422,7 +422,7 @@ void Soprano::Inference::InferenceModel::clearInference()
     FilterModel::removeStatements(parentModel()->listStatements(Soprano::Node::createEmptyNode(),
                                                                 Vocabulary::RDF::isDisabled(),
                                                                 Soprano::Node::createEmptyNode(),
-                                                                Vocabulary::SIL::InferenceMetaData()).allStatements());
+                                                                Soprano::Node::createEmptyNode()).allStatements());
 
 }
 
@@ -798,22 +798,23 @@ QUrl Soprano::Inference::InferenceModel::storeUncompressedSourceStatement( const
 
 Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statement& sourceStatement)
 {
-  QString query = "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
-      "select ?metadata where {"
-      + "<" + xUrlConversion(sourceStatement.subject()) + ">" + " al:metadataSubject ?metadata . \n"
-      + "<" + xUrlConversion(sourceStatement.predicate()) + ">" + " al:metadataPredicate ?metadata . \n"
-      + "<" + xUrlConversion(sourceStatement.object()) + ">" + " al:metadataObject ?metadata .}";
+  Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
+  Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
+  Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
 
-  Soprano::QueryResultIterator it = executeQuery(query,
-                                                 Soprano::Query::QueryLanguageSparql);
 
-  QList<BindingSet> bindings = it.allBindings();
+  Soprano::StatementIterator statements = listStatements(sourceStatement.object(),
+                                                         metadataObject,
+                                                         Soprano::Node::createEmptyNode(),
+                                                         Soprano::Node::createEmptyNode());
 
-  Q_FOREACH(Soprano::BindingSet bs, bindings)
+  while(statements.next())
   {
-    Q_FOREACH(QString bindingName, bs.bindingNames())
+    if(
+    containsAnyStatement(sourceStatement.predicate(), metadataPredicate, statements.current().object(), Soprano::Node::createEmptyNode()) &&
+    containsAnyStatement(sourceStatement.subject(), metadataSubject, statements.current().object(), Soprano::Node::createEmptyNode()))
     {
-      return bs.value(bindingName);
+     return statements.current().object();
     }
   }
 
@@ -850,17 +851,17 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
   parentModel()->addStatement(statement.subject(),
                               metadataSubject,
                               metaDataNode,
-                              Vocabulary::SIL::InferenceMetaData());
+                              Soprano::Node::createEmptyNode());
 
   parentModel()->addStatement(statement.predicate(),
                               metadataPredicate,
                               metaDataNode,
-                              Vocabulary::SIL::InferenceMetaData());
+                              Soprano::Node::createEmptyNode());
 
   parentModel()->addStatement(statement.object(),
                               metadataObject,
                               metaDataNode,
-                              Vocabulary::SIL::InferenceMetaData());
+                              Soprano::Node::createEmptyNode());
 
 //  if(getMetadataNode(statement).isEmpty())
 //    std::cout << "WHAT THE FUCK" << std::endl;
@@ -878,17 +879,17 @@ void Soprano::Inference::InferenceModel::cleanMetadata(Soprano::Node metadataNod
     removeStatements(parentModel()->listStatements(Soprano::Node::createEmptyNode(),
                                                    Vocabulary::RDF::metadata("subject"),
                                                    metadataNode,
-                                                   Vocabulary::SIL::InferenceMetaData()).allStatements());
+                                                   Soprano::Node::createEmptyNode()).allStatements());
 
     removeStatements(parentModel()->listStatements(Soprano::Node::createEmptyNode(),
                                                    Vocabulary::RDF::metadata("predicate"),
                                                    metadataNode,
-                                                   Vocabulary::SIL::InferenceMetaData()).allStatements());
+                                                   Soprano::Node::createEmptyNode()).allStatements());
 
     removeStatements(parentModel()->listStatements(Soprano::Node::createEmptyNode(),
                                                    Vocabulary::RDF::metadata("object"),
                                                    metadataNode,
-                                                   Vocabulary::SIL::InferenceMetaData()).allStatements());
+                                                   Soprano::Node::createEmptyNode()).allStatements());
   }
 }
 
@@ -899,17 +900,17 @@ Soprano::Statement Soprano::Inference::InferenceModel::getStatementFromMetadataN
   QList<Statement> metadataSubjectStatement = listStatements(Soprano::Node::createEmptyNode(),
                                                              Vocabulary::RDF::metadata("subject"),
                                                              metadataNode,
-                                                             Vocabulary::SIL::InferenceMetaData()).allStatements();
+                                                             Soprano::Node::createEmptyNode()).allStatements();
 
   QList<Statement> metadataPredicateStatement = listStatements(Soprano::Node::createEmptyNode(),
                                                                Vocabulary::RDF::metadata("predicate"),
                                                                metadataNode,
-                                                               Vocabulary::SIL::InferenceMetaData()).allStatements();
+                                                               Soprano::Node::createEmptyNode()).allStatements();
 
   QList<Statement> metadataObjectStatement = listStatements(Soprano::Node::createEmptyNode(),
                                                             Vocabulary::RDF::metadata("object"),
                                                             metadataNode,
-                                                            Vocabulary::SIL::InferenceMetaData()).allStatements();
+                                                            Soprano::Node::createEmptyNode()).allStatements();
 
   if(metadataSubjectStatement.size() == 1 &&
      metadataPredicateStatement.size() == 1 &&
