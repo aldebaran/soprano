@@ -69,6 +69,17 @@ endif()
 
 ##################  find packages  ################################
 find_package(qibuild REQUIRED)
+
+qi_add_optional_package(REDLAND)
+qi_add_optional_package(RAPTOR)
+qi_add_optional_package(RASQAL)
+
+if(NOT(WITH_REDLAND AND
+    WITH_RAPTOR AND
+    WITH_RASQAL))
+  return()
+endif()
+
 find_package(qi REQUIRED)
 
 if(QT5_BUILD)
