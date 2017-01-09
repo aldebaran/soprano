@@ -30,6 +30,7 @@
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
 #include <QtCore/QSharedDataPointer>
+#include <boost/function.hpp>
 
 
 namespace Soprano
@@ -278,6 +279,8 @@ namespace Soprano
          * \sa BackendSetting
          */
         virtual StorageModel* createModel( const BackendSettings& settings = BackendSettings() ) const = 0;
+        virtual StorageModel* createModel( const BackendSettings& settings,
+                                           boost::function<void(QList<QString>)> ontologyModified) const = 0;
 
         /**
          * Phyically delete all data for a specific model. For most backends this means deleting some files

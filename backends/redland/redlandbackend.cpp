@@ -60,7 +60,7 @@ Soprano::Redland::BackendPlugin::BackendPlugin()
 }
 
 
-Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const BackendSettings& settings ) const
+Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const BackendSettings& settings) const
 {
     QMutexLocker lock( &m_mutex );
 
@@ -137,7 +137,89 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
         qDebug() << "JE SAIs PAS ! :'( ";
         return 0;
     }
-    return new RedlandModel( this, model, storage, world );
+    return new RedlandModel( this, model, storage, world);
+}
+
+
+Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const BackendSettings& settings,
+                                                                     boost::function<void(QList<QString>)> ontologyModified) const
+{
+    QMutexLocker lock( &m_mutex );
+
+    clearError();
+
+    // check all settings.
+    // we pass all user settings on to librdf
+    QHash<QString, QString> redlandOptions;
+
+    // set some defaults
+    redlandOptions["contexts"] = "yes";       // always use context
+    redlandOptions["storageType"] = "hashes"; // default to hashes storage, so even the memory storage has an index
+    redlandOptions["hash-type"] = "memory";   // default to the memory hash type
+
+    // for persistent stores we need an indentifier
+    redlandOptions["name"] = "soprano";
+
+    Q_FOREACH( const BackendSetting &s, settings ) {
+        if ( s.option() == BackendOptionUser ) {
+            redlandOptions[s.userOptionName()] = s.value().toString();
+        }
+        else if ( s.option() == BackendOptionStorageMemory ) {
+            if ( s.value().toBool() ) {
+                redlandOptions["hash-type"] = "memory";
+            }
+            else {
+                redlandOptions["hash-type"] = "bdb";
+            }
+        }
+        else if ( s.option() == BackendOptionStorageDir ) {
+            redlandOptions["dir"] = s.value().toString();
+            redlandOptions["hash-type"] = "bdb";
+        }
+    }
+
+    // create if nothing is there (stupid version)
+    if ( redlandOptions.contains( "dir" ) &&
+         !redlandOptions["dir"].isEmpty() &&
+         QDir( redlandOptions["dir"] ).entryList( QDir::Files ).isEmpty() &&
+        !redlandOptions.contains( "new" ) ) {
+        redlandOptions["new"] = "yes";
+    }
+
+    // remove unused options from the option hash
+    QString storageType = redlandOptions["storageType"];
+    QString storageName = redlandOptions["name"];
+    redlandOptions.remove( "storageType" );
+    redlandOptions.remove( "name" );
+
+    QString os = createRedlandOptionString( redlandOptions );
+
+    qDebug() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType << "with options" << os;
+
+//    World* world = new World();
+    World* world = World::theWorld();
+    // create a new storage
+    librdf_storage* storage = librdf_new_storage( world->worldPtr(),
+                                                  storageType.toUtf8().data(),
+                                                  storageName.toUtf8().data(),
+                                                  os.toUtf8().data() );
+    if( !storage ) {
+        qDebug() << "(Soprano::Redland) storage creation failed!";
+        qiLogError() << "(Soprano::Redland) storage creation failed!";
+        setError( world->lastError() );
+//        delete world;
+        return 0;
+    }
+
+    librdf_model *model = librdf_new_model( world->worldPtr(), storage, 0 );
+    if ( !model ) {
+        librdf_free_storage( storage );
+        setError( world->lastError() );
+//        delete world;
+        qDebug() << "JE SAIs PAS ! :'( ";
+        return 0;
+    }
+    return new RedlandModel( this, model, storage, world, ontologyModified);
 }
 
 

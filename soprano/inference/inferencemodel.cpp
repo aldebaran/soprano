@@ -112,7 +112,6 @@ Soprano::Inference::InferenceModel::InferenceModel( Model* parent )
     d->optimizedQueries = false;
 }
 
-
 Soprano::Inference::InferenceModel::~InferenceModel()
 {
     delete d;

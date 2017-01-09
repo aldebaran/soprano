@@ -52,6 +52,8 @@ namespace Soprano
              *     Soprano::BackendOptionStorageMemory change the values of redland options "dir" and "has-type".
              */
             StorageModel* createModel( const BackendSettings& settings = BackendSettings() ) const;
+            StorageModel* createModel( const BackendSettings& settings,
+                                       boost::function<void(QList<QString>)> ontologyModified) const;
 
             bool deleteModelData( const BackendSettings& settings ) const;
 

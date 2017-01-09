@@ -34,6 +34,8 @@
 #include "statement.h"
 #include "node.h"
 
+#include <boost/function.hpp>
+
 namespace Soprano {
 
     class QueryResultIterator;
@@ -50,6 +52,8 @@ namespace Soprano {
         {
         public:
             RedlandModel( const Backend*, librdf_model *model, librdf_storage *storage, World* world );
+            RedlandModel( const Backend*, librdf_model *model, librdf_storage *storage, World* world,
+                          boost::function<void(QList<QString>)> ontologyModified);
             ~RedlandModel();
 
             World* world() const;
@@ -74,6 +78,10 @@ namespace Soprano {
             int statementCount() const;
 
             Node createBlankNode();
+
+            void xStatementAdded(const Soprano::Statement &statement);
+            void xStatementRemoved(const Soprano::Statement &statement);
+            QString xRemovePrefix(QString value);
 
         private:
             class Private;

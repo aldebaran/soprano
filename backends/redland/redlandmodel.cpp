@@ -37,6 +37,7 @@
 #include <QtCore/QDebug>
 
 #include <qi/log.hpp>
+#include <QUuid>
 
 qiLogCategory("redlandmodel");
 
@@ -72,6 +73,7 @@ public:
     World *world;
     librdf_model *model;
     librdf_storage *storage;
+    boost::function<void(QList<QString>)> fOntologyModified;
 
     MultiMutex readWriteLock; // restricts multiple reads to one thread
 
@@ -173,6 +175,21 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
     Q_ASSERT( model != 0L );
     Q_ASSERT( storage != 0L );
 }
+
+Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
+                                              boost::function<void(QList<QString>)> ontologyModified)
+    : StorageModel( b )
+{
+    d = new Private;
+    d->world = world;
+    d->model = model;
+    d->storage = storage;
+    d->fOntologyModified = ontologyModified;
+
+    Q_ASSERT( model != 0L );
+    Q_ASSERT( storage != 0L );
+}
+
 
 
 Soprano::Redland::RedlandModel::~RedlandModel()
@@ -313,6 +330,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
     if ( added ) {
         emit statementAdded( statement );
         emit statementsAdded();
+        xStatementAdded( statement );
     }
 
     return Error::ErrorNone;
@@ -478,6 +496,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeOneStatement( co
     d->world->freeStatement( redlandStatement );
 
     emit statementRemoved( statement );
+    xStatementRemoved( statement );
 
     return Error::ErrorNone;
 }
@@ -509,6 +528,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeAllStatements( c
         // FIXME: list all the removed statements? That could mean a bad slowdown...
         emit statementRemoved( statement );
         emit statementsRemoved();
+        xStatementRemoved( statement );
 
         return Error::ErrorNone;
     }
@@ -590,3 +610,63 @@ void Soprano::Redland::RedlandModel::removeQueryResult( RedlandQueryResult* r ) 
     d->results.removeAll( r );
     d->readWriteLock.unlock();
 }
+
+void Soprano::Redland::RedlandModel::xStatementAdded(const Soprano::Statement &statement)
+{
+ QString subject =  xRemovePrefix(statement.subject().toString());
+ QString predicate =  xRemovePrefix(statement.predicate().toString());
+ QString object =  xRemovePrefix(statement.object().toString());
+
+  if(d->fOntologyModified == NULL ||
+     xRemovePrefix(statement.context().toString()).contains("http://soprano.org/sil#InferenceMetadata") ||
+     !QUuid(subject).isNull() ||
+     !QUuid(predicate).isNull() ||
+     !QUuid(object).isNull())
+  {
+    return;
+  }
+
+  if(xRemovePrefix(statement.context().toString()).contains("http://soprano.org/sil#InferenceMetadata"))
+    return;
+
+  QList<QString> triplet;
+  triplet.append("statementAdded");
+  triplet.append("com.aldebaran.learning");
+  triplet.append(subject);
+  triplet.append(predicate);
+  triplet.append(object);
+  d->fOntologyModified(triplet);
+}
+
+void Soprano::Redland::RedlandModel::xStatementRemoved(const Soprano::Statement &statement)
+{
+  QString subject =  xRemovePrefix(statement.subject().toString());
+  QString predicate =  xRemovePrefix(statement.predicate().toString());
+  QString object =  xRemovePrefix(statement.object().toString());
+
+  if(d->fOntologyModified == NULL ||
+     xRemovePrefix(statement.context().toString()).contains("http://soprano.org/sil#InferenceMetadata") ||
+     !QUuid(subject).isNull() ||
+     !QUuid(predicate).isNull() ||
+     !QUuid(object).isNull())
+  {
+    return;
+  }
+
+  QList<QString> triplet;
+  triplet.append("statementRemoved");
+  triplet.append("com.aldebaran.learning");
+  triplet.append(subject);
+  triplet.append(predicate);
+  triplet.append(object);
+
+  d->fOntologyModified(triplet);
+}
+
+QString Soprano::Redland::RedlandModel::xRemovePrefix(QString value)
+{
+  QString result = QUrl::fromPercentEncoding(value.remove("http://aldebaran.org/learning#").toUtf8());
+  result = QUrl::fromPercentEncoding(result.remove("inference://localhost#").toUtf8());
+  return result;
+}
+
