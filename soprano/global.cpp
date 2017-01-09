@@ -60,13 +60,24 @@ const Soprano::Backend* Soprano::usedBackend()
     return s_defaultBackend;
 }
 
-
-Soprano::Model* Soprano::createModel( const BackendSettings& settings )
+Soprano::Model* Soprano::createModel( const BackendSettings& settings)
 {
     initSoprano();
 
     if( s_defaultBackend )
-        return s_defaultBackend->createModel( settings );
+        return s_defaultBackend->createModel( settings);
+    else
+      qiLogError() <<  "ERROR IN INIT SOPRANO";
+    return 0;
+}
+
+Soprano::Model* Soprano::createModel( const BackendSettings& settings,
+                                      boost::function<void(QList<QString>)> ontologyModified)
+{
+    initSoprano();
+
+    if( s_defaultBackend )
+        return s_defaultBackend->createModel( settings, ontologyModified);
     else
       qiLogError() <<  "ERROR IN INIT SOPRANO";
     return 0;
