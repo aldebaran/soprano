@@ -12,7 +12,7 @@ set(raptor_parser_SRC
 qi_create_lib(soprano_raptor_parser
   SRC ${HEADERS}
   ${raptor_parser_SRC}
-    DEPENDS QT5_CORE RAPTOR
+    DEPENDS QT5_CORE RAPTOR2
   SHARED
   )
 

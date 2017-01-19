@@ -4,7 +4,7 @@
   -->
 
     <!--    <depends buildtime="true" runtime="true" names="libqi libnaoqi rasqal raptor redland qt5"/> -->
-    <depends buildtime="true" runtime="true" names="libqi libnaoqi qt redland raptor rasqal"/>
+    <depends buildtime="true" runtime="true" names="libqi libnaoqi qt redland raptor2 rasqal"/>
 
     <!-- Add your project dependencies here
     <depends buildtime="true" runtime="true" names="foo" />

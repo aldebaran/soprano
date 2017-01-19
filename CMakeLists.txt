@@ -12,7 +12,7 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 option(QT5_BUILD "Build Soprano using the Qt5 framework" TRUE)
 
 qi_add_optional_package(REDLAND)
-qi_add_optional_package(RAPTOR)
+qi_add_optional_package(RAPTOR2)
 qi_add_optional_package(RASQAL)
 
 

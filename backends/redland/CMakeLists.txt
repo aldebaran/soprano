@@ -29,7 +29,7 @@ set(redland_core_SRC
 
 qi_create_lib(soprano_redlandcore STATIC ${redland_core_SRC})
 
-#qi_use_lib(soprano_redlandcore RAPTOR soprano ${REDLAND_LIBRARIES})
+#qi_use_lib(soprano_redlandcore RAPTOR2 soprano ${REDLAND_LIBRARIES})
 #qi_use_lib(soprano_redlandcore soprano ${REDLAND_LIBRARIES})
 qi_use_lib(soprano_redlandcore soprano REDLAND)
 
@@ -42,7 +42,7 @@ set(redland_backend_SRC
 qi_create_lib(soprano_redlandbackend
   SRC     ${HEADERS}
   ${redland_backend_SRC}
-  DEPENDS QI QT5_CORE RAPTOR REDLAND soprano_redlandcore
+  DEPENDS QI QT5_CORE RAPTOR2 REDLAND soprano_redlandcore
   SHARED
   )
 
