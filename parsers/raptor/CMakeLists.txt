@@ -3,7 +3,7 @@ project(soprano_raptor_parser)
 include_directories(
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
-  ${RAPTOR_INCLUDE_DIR}
+  ${RAPTOR2_INCLUDE_DIR}
 )
 
 set(raptor_parser_SRC
@@ -12,7 +12,7 @@ set(raptor_parser_SRC
 
 add_library(soprano_raptorparser  MODULE ${raptor_parser_SRC})
 
-target_link_libraries(soprano_raptorparser soprano ${RAPTOR_LIBRARIES})
+target_link_libraries(soprano_raptorparser soprano ${RAPTOR2_LIBRARIES})
 
 set_target_properties(soprano_raptorparser PROPERTIES
   DEFINE_SYMBOL MAKE_RAPTORPARSER_LIB

@@ -5,7 +5,7 @@ include_directories(
   ${soprano_core_SOURCE_DIR}
   ${REDLAND_INCLUDE_DIR}
   ${RASQAL_INCLUDE_DIR}
-  ${RAPTOR_INCLUDE_DIR}
+  ${RAPTOR2_INCLUDE_DIR}
   )
 
 add_definitions(${REDLAND_CFLAGS})
@@ -17,7 +17,7 @@ if(NOT WIN32)
   add_definitions(-fPIC)
 endif()
 
-if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR_SERIALIZER)
+if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR2_SERIALIZER)
   set(redland_core_SRC
     redlandworld.cpp
     redlandstatementiterator.cpp

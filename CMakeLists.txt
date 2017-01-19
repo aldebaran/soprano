@@ -71,7 +71,7 @@ endif()
 find_package(qibuild REQUIRED)
 
 qi_add_optional_package(REDLAND)
-qi_add_optional_package(RAPTOR)
+qi_add_optional_package(RAPTOR2)
 qi_add_optional_package(RASQAL)
 
 if(NOT(WITH_REDLAND AND
