@@ -5,7 +5,7 @@ set( CMAKE_VERBOSE_MAKEFILE ON )
 include_directories(HEADERS
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
-  ${RAPTOR_INCLUDE_DIR}
+  ${RAPTOR2_INCLUDE_DIR}
   )
 
 add_definitions(${REDLAND_CFLAGS})

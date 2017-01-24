@@ -17,7 +17,7 @@ qi_add_optional_package(RASQAL)
 
 
 if(NOT (WITH_REDLAND AND
-    WITH_RAPTOR AND
+    WITH_RAPTOR2 AND
     WITH_RASQAL) )
 return()
 endif()
