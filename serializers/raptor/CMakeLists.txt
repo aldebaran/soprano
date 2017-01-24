@@ -3,11 +3,11 @@ project(soprano_raptor_serializer)
 include_directories(
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
-  ${RAPTOR_INCLUDE_DIR}
+  ${RAPTOR2_INCLUDE_DIR}
 )
 
-set(CMAKE_REQUIRED_INCLUDES ${RAPTOR_INCLUDE_DIR})
-set(CMAKE_REQUIRED_LIBRARIES ${RAPTOR_LIBRARIES})
+set(CMAKE_REQUIRED_INCLUDES ${RAPTOR2_INCLUDE_DIR})
+set(CMAKE_REQUIRED_LIBRARIES ${RAPTOR2_LIBRARIES})
 
 set(raptor_serializer_SRC
   raptorserializer.cpp
@@ -15,7 +15,7 @@ set(raptor_serializer_SRC
 
 add_library(soprano_raptorserializer MODULE ${raptor_serializer_SRC})
 
-target_link_libraries(soprano_raptorserializer soprano ${RAPTOR_LIBRARIES})
+target_link_libraries(soprano_raptorserializer soprano ${RAPTOR2_LIBRARIES})
 
 set_target_properties(soprano_raptorserializer PROPERTIES
   DEFINE_SYMBOL MAKE_RAPTORSERIALIZER_LIB

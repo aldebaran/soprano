@@ -1,13 +1,13 @@
 # - Try to find the Raptor RDF parsing library (http://librdf.org/raptor/)
 # Once done this will define
 #
-#  RAPTOR_FOUND       - system has Raptor
-#  RAPTOR_LIBRARIES   - Link these to use Raptor
-#  RAPTOR_INCLUDE_DIR - Include directory for using Raptor
-#  RAPTOR_DEFINITIONS - Compiler switches required for using Raptor
+#  RAPTOR2_FOUND       - system has Raptor
+#  RAPTOR2_LIBRARIES   - Link these to use Raptor
+#  RAPTOR2_INCLUDE_DIR - Include directory for using Raptor
+#  RAPTOR2_DEFINITIONS - Compiler switches required for using Raptor
 #
 #  Capabilities
-#       RAPTOR_HAVE_TRIG   - Set if raptor has TRIG
+#       RAPTOR2_HAVE_TRIG   - Set if raptor has TRIG
 
 # (c) 2007-2011 Sebastian Trueg <trueg@kde.org>
 # (c) 2011 Artem Serebriyskiy <v.for.vandal@gmail.com>
@@ -19,82 +19,82 @@
 # For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
 
-MACRO ( FIND_RAPTOR libname libhints includehints )
+MACRO ( FIND_RAPTOR2 libname libhints includehints )
     find_library_with_debug(
-        RAPTOR_LIBRARIES
+        RAPTOR2_LIBRARIES
         WIN32_DEBUG_POSTFIX d
         NAMES ${libname}
         HINTS ${libhints})
     find_path(
-        RAPTOR_INCLUDE_DIR raptor.h
+        RAPTOR2_INCLUDE_DIR raptor.h
         HINTS ${includehints}
         PATH_SUFFIXES ${libname})
 ENDMACRO ()
 
 # Check if we have cached results in case the last round was successful.
-if ( NOT ( RAPTOR_INCLUDE_DIR AND RAPTOR_LIBRARIES ) OR NOT RAPTOR_FOUND )
+if ( NOT ( RAPTOR2_INCLUDE_DIR AND RAPTOR2_LIBRARIES ) OR NOT RAPTOR2_FOUND )
 
     include(FindLibraryWithDebug)
     find_package(PkgConfig)
 
     # By default look for version 2.0
-    if (NOT Raptor_FIND_VERSION )
-        set( Raptor_FIND_VERSION "2.0")
-        set( Raptor_FIND_VERSION_MAJOR "2" )
-        set( Raptor_FIND_VERSION_MINOR "0" )
+    if (NOT RAPTOR2_FIND_VERSION )
+        set( RAPTOR2_FIND_VERSION "2.0")
+        set( RAPTOR2_FIND_VERSION_MAJOR "2" )
+        set( RAPTOR2_FIND_VERSION_MINOR "0" )
     endif()
 
-    if ( Raptor_FIND_VERSION_MAJOR EQUAL "2" )
+    if ( RAPTOR2_FIND_VERSION_MAJOR EQUAL "2" )
 
         if ( NOT WIN32 )
             pkg_check_modules(PC_RAPTOR2 QUIET raptor2)
             if ( PC_RAPTOR2_FOUND )
-                set(RAPTOR_DEFINITIONS ${PC_RAPTOR2_CFLAGS_OTHER})
-                set(RAPTOR_VERSION ${PC_RAPTOR2_VERSION} CACHE STRING "Raptor Version found" )
+                set(RAPTOR2_DEFINITIONS ${PC_RAPTOR2_CFLAGS_OTHER})
+                set(RAPTOR2_VERSION ${PC_RAPTOR2_VERSION} CACHE STRING "Raptor Version found" )
             endif()
         endif()
-        find_raptor( raptor2 "${PC_RAPTOR2_LIBDIR};${PC_RAPTOR2_LIBRARY_DIRS}" "${PC_RAPTOR2_INCLUDEDIR};${PC_RAPTOR2_INCLUDE_DIRS}")
+        find_raptor2( raptor2 "${PC_RAPTOR2_LIBDIR};${PC_RAPTOR2_LIBRARY_DIRS}" "${PC_RAPTOR2_INCLUDEDIR};${PC_RAPTOR2_INCLUDE_DIRS}")
 
-    elseif ( Raptor_FIND_VERSION_MAJOR EQUAL "1" )
+    elseif ( RAPTOR2_FIND_VERSION_MAJOR EQUAL "1" )
 
         if ( NOT WIN32 )
-            pkg_check_modules(PC_RAPTOR QUIET raptor)
-            if ( PC_RAPTOR_FOUND )
-                set(RAPTOR_DEFINITIONS ${PC_RAPTOR_CFLAGS_OTHER})
-                set(RAPTOR_VERSION ${PC_RAPTOR_VERSION} CACHE STRING "Raptor Version found" )
+            pkg_check_modules(PC_RAPTOR2 QUIET raptor2)
+            if ( PC_RAPTOR2_FOUND )
+                set(RAPTOR2_DEFINITIONS ${PC_RAPTOR2_CFLAGS_OTHER})
+                set(RAPTOR2_VERSION ${PC_RAPTOR2_VERSION} CACHE STRING "Raptor Version found" )
             endif()
         endif()
-        find_raptor( raptor "${PC_RAPTOR_LIBDIR};${PC_RAPTOR_LIBRARY_DIRS}" "${PC_RAPTOR_INCLUDEDIR};${PC_RAPTOR_INCLUDE_DIRS}")
+        find_raptor2( raptor2 "${PC_RAPTOR2_LIBDIR};${PC_RAPTOR2_LIBRARY_DIRS}" "${PC_RAPTOR2_INCLUDEDIR};${PC_RAPTOR2_INCLUDE_DIRS}")
 
     else()
 
-        message( FATAL_ERROR "No idea how to check for version : ${Raptor_FIND_VERSION}")
+        message( FATAL_ERROR "No idea how to check for version : ${RAPTOR2_FIND_VERSION}")
 
     endif()
 
-    if (RAPTOR_VERSION)
-        if(NOT ${RAPTOR_VERSION} VERSION_LESS 1.4.16)
-            set(RAPTOR_HAVE_TRIG TRUE)
+    if (RAPTOR2_VERSION)
+        if(NOT ${RAPTOR2_VERSION} VERSION_LESS 1.4.16)
+            set(RAPTOR2_HAVE_TRIG TRUE)
         endif()
     endif()
 
-    mark_as_advanced(RAPTOR_INCLUDE_DIR RAPTOR_LIBRARIES)
+    mark_as_advanced(RAPTOR2_INCLUDE_DIR RAPTOR2_LIBRARIES)
 
 endif() # Check for cached values
 
 include(FindPackageHandleStandardArgs)
 
 find_package_handle_standard_args(
-    Raptor
-    VERSION_VAR   RAPTOR_VERSION
-    REQUIRED_VARS RAPTOR_LIBRARIES RAPTOR_INCLUDE_DIR)
+    Raptor2
+    VERSION_VAR   RAPTOR2_VERSION
+    REQUIRED_VARS RAPTOR2_LIBRARIES RAPTOR2_INCLUDE_DIR)
 
-mark_as_advanced(RAPTOR_VERSION)
+mark_as_advanced(RAPTOR2_VERSION)
 
-if (NOT RAPTOR_FOUND AND Raptor_FIND_VERSION_MAJOR EQUAL "2" AND NOT Raptor_FIND_QUIET )
-    pkg_check_modules(PC_RAPTOR QUIET raptor)
-    if (PC_RAPTOR_FOUND)
-        message( STATUS "You have raptor1 version ${PC_RAPTOR_VERSION} installed. Please update." )
+if (NOT RAPTOR2_FOUND AND RAPTOR2_FIND_VERSION_MAJOR EQUAL "2" AND NOT RAPTOR2_FIND_QUIET )
+    pkg_check_modules(PC_RAPTOR2 QUIET raptor2)
+    if (PC_RAPTOR2_FOUND)
+        message( STATUS "You have raptor1 version ${PC_RAPTOR2_VERSION} installed. Please update." )
     endif()
 endif()
 

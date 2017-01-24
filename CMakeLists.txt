@@ -75,7 +75,7 @@ qi_add_optional_package(RAPTOR2)
 qi_add_optional_package(RASQAL)
 
 if(NOT(WITH_REDLAND AND
-    WITH_RAPTOR AND
+    WITH_RAPTOR2 AND
     WITH_RASQAL))
   return()
 endif()
@@ -119,7 +119,7 @@ if(NOT SOPRANO_DISABLE_RAPTOR_PARSER OR NOT SOPRANO_DISABLE_RAPTOR_SERIALIZER OR
                          PURPOSE "Needed to build the Raptor parser and Redland backend"
   )
 
-  find_package(Raptor 2.0.0)
+  find_package(Raptor2 2.0.0)
   set_package_properties(Raptor PROPERTIES
                          URL "http://librdf.org/raptor"
                          DESCRIPTION "Raptor RDF Syntax Library"
@@ -210,10 +210,10 @@ endif()
 if(SOPRANO_BUILD_INDEX_LIB AND NOT SOPRANO_DISABLE_CLUCENE_INDEX)
   set(BUILD_CLUCENE_INDEX TRUE)
 endif()
-if(RAPTOR_FOUND AND NOT SOPRANO_DISABLE_RAPTOR_PARSER)
+if(RAPTOR2_FOUND AND NOT SOPRANO_DISABLE_RAPTOR_PARSER)
   set(BUILD_RAPTOR_PARSER TRUE)
 endif()
-if(RAPTOR_FOUND AND NOT SOPRANO_DISABLE_RAPTOR_SERIALIZER)
+if(RAPTOR2_FOUND AND NOT SOPRANO_DISABLE_RAPTOR_SERIALIZER)
   set(BUILD_RAPTOR_SERIALIZER TRUE)
 endif()
 if(NOT SOPRANO_DISABLE_DBUS AND (QT_QTDBUS_FOUND OR Qt5DBus_FOUND))

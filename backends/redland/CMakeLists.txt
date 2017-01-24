@@ -17,7 +17,7 @@ if(NOT WIN32)
   add_definitions(-fPIC)
 endif()
 
-if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR2_SERIALIZER)
+if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR_SERIALIZER)
   set(redland_core_SRC
     redlandworld.cpp
     redlandstatementiterator.cpp
