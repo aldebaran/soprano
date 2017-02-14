@@ -26,6 +26,7 @@
 #include "error.h"
 #include "soprano_export.h"
 #include "sopranotypes.h"
+#include "statement.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QVariant>
@@ -281,6 +282,10 @@ namespace Soprano
         virtual StorageModel* createModel( const BackendSettings& settings = BackendSettings() ) const = 0;
         virtual StorageModel* createModel( const BackendSettings& settings,
                                            boost::function<void(QList<QString>)> ontologyModified) const = 0;
+
+        virtual StorageModel* createModel( const BackendSettings& settings,
+                            boost::function<void(Statement)> statementAdded,
+                            boost::function<void(Statement)> statementRemoved) const = 0;
 
         /**
          * Phyically delete all data for a specific model. For most backends this means deleting some files

@@ -69,7 +69,8 @@ public:
 
 QString Soprano::LanguageTag::Private::normalizeString( const QString& str )
 {
-    return str.toLower();
+  return str;
+//    return str.toLower();
 }
 
 bool Soprano::LanguageTag::Private::matchBasic( const QString& tag, const QString& range )

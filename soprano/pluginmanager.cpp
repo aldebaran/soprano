@@ -301,12 +301,12 @@ void Soprano::PluginManager::loadAllPlugins()
 
 //    QString pluginFile = "/home/nao/foo/share/dialog/redlandbackend.desktop";
 
+//    pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-desktop-knowledge/sdk/share/dialog/redlandbackend.desktop";
+
     qDebug() << "+++++++++++++++++++++++++++++";
     qDebug() << test;
     qDebug() << pluginFile;
     qDebug() << "_____________________________";
-
-//    pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-desktop-knowledge/sdk/share/dialog/redlandbackend.desktop";
 
         loadPlugin(pluginFile);
 

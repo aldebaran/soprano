@@ -74,6 +74,8 @@ public:
     librdf_model *model;
     librdf_storage *storage;
     boost::function<void(QList<QString>)> fOntologyModified;
+    boost::function<void(Soprano::Statement)> fStatementAdded;
+    boost::function<void(Soprano::Statement)> fStatementRemoved;
 
     MultiMutex readWriteLock; // restricts multiple reads to one thread
 
@@ -190,7 +192,22 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
     Q_ASSERT( storage != 0L );
 }
 
+Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
+                                              boost::function<void(Statement)> statementAdded,
+                                              boost::function<void(Statement)> statementRemoved)
 
+    : StorageModel( b )
+{
+    d = new Private;
+    d->world = world;
+    d->model = model;
+    d->storage = storage;
+    d->fStatementAdded = statementAdded;
+    d->fStatementRemoved = statementRemoved;
+
+    Q_ASSERT( model != 0L );
+    Q_ASSERT( storage != 0L );
+}
 
 Soprano::Redland::RedlandModel::~RedlandModel()
 {
@@ -243,17 +260,17 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
 
   while(statements.next())
   {
-    Soprano::Statement metaObjectStatement = Soprano::Statement(statement.object(),
+    Soprano::Statement metaObjectStatement = Soprano::Statement(statements.current().object(),
                                                                 metadataObject,
-                                                                statements.current().object(),
+                                                                statement.object(),
                                                                 Soprano::Node::createEmptyNode());
-    Soprano::Statement metaPredicateStatement = Soprano::Statement(statement.predicate(),
+    Soprano::Statement metaPredicateStatement = Soprano::Statement(statements.current().object(),
                                                                    metadataPredicate,
-                                                                   statements.current().object(),
+                                                                   statement.predicate(),
                                                                    Soprano::Node::createEmptyNode());
-    Soprano::Statement metaSubjectStatement = Soprano::Statement(statement.subject(),
+    Soprano::Statement metaSubjectStatement = Soprano::Statement(statements.current().object(),
                                                                  metadataSubject,
-                                                                 statements.current().object(),
+                                                                 statement.subject(),
                                                                  Soprano::Node::createEmptyNode());
 
     if(
@@ -331,6 +348,8 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
         emit statementAdded( statement );
         emit statementsAdded();
         xStatementAdded( statement );
+        if(d->fStatementAdded != NULL)
+          d->fStatementAdded( statement );
     }
 
     return Error::ErrorNone;
@@ -497,6 +516,8 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeOneStatement( co
 
     emit statementRemoved( statement );
     xStatementRemoved( statement );
+    if(d->fStatementRemoved != NULL)
+      d->fStatementRemoved( statement );
 
     return Error::ErrorNone;
 }
@@ -529,6 +550,8 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeAllStatements( c
         emit statementRemoved( statement );
         emit statementsRemoved();
         xStatementRemoved( statement );
+        if(d->fStatementAdded != NULL)
+          d->fStatementAdded( statement );
 
         return Error::ErrorNone;
     }

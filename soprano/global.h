@@ -96,6 +96,9 @@ namespace Soprano {
     SOPRANO_EXPORT Model* createModel( const BackendSettings& settings = BackendSettings() );
     SOPRANO_EXPORT Model* createModel( const BackendSettings& settings,
                                        boost::function<void(QList<QString>)> ontologyModified);
+    SOPRANO_EXPORT Model* createModel( const BackendSettings& settings,
+                            boost::function<void(Statement)> statementAdded,
+                            boost::function<void(Statement)> statementRemoved);
 }
 
 #endif // SOPRANO_H

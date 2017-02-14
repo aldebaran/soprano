@@ -54,6 +54,9 @@ namespace Soprano {
             RedlandModel( const Backend*, librdf_model *model, librdf_storage *storage, World* world );
             RedlandModel( const Backend*, librdf_model *model, librdf_storage *storage, World* world,
                           boost::function<void(QList<QString>)> ontologyModified);
+            RedlandModel( const Backend*, librdf_model *model, librdf_storage *storage, World* world,
+                            boost::function<void(Statement)> statementAdded,
+                            boost::function<void(Statement)> statementRemoved);
             ~RedlandModel();
 
             World* world() const;

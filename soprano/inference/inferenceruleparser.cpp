@@ -183,17 +183,17 @@ public:
 
       QList<Soprano::Inference::StatementPattern> negationPatterns;
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(subjectPattern,
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
                                                                    metadataSubject,
-                                                                   Soprano::Inference::NodePattern("metadata")));
+                                                                   subjectPattern);
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(predicatePattern,
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
                                                                    metadataPredicate,
-                                                                   Soprano::Inference::NodePattern("metadata")));
+                                                                   predicatePattern);
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(objectPattern,
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
                                                                    metadataObject,
-                                                                   Soprano::Inference::NodePattern("metadata")));
+                                                                   objectPattern);
 
       negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("disablingMetadata"),
                                                                    Soprano::Node::createResourceNode(Vocabulary::RDF::isDisabled()),
