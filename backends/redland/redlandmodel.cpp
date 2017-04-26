@@ -691,7 +691,7 @@ void Soprano::Redland::RedlandModel::xStatementRemoved(const Soprano::Statement 
 
 QString Soprano::Redland::RedlandModel::xRemovePrefix(QString value)
 {
-  QString result = QUrl::fromPercentEncoding(value.remove("http://aldebaran.org/learning#").toUtf8());
+  QString result = QUrl::fromPercentEncoding(value.remove("http://softbank.org/sharedKnowledge#").toUtf8());
   result = QUrl::fromPercentEncoding(result.remove("inference://localhost#").toUtf8());
   return result;
 }

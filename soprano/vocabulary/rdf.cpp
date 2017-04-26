@@ -41,10 +41,10 @@ public:
           rdf_subject( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject", QUrl::StrictMode ) ),
           rdf_type( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", QUrl::StrictMode ) ),
           rdf_value( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#value", QUrl::StrictMode ) ),
-          rdf_metadataSubject( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataSubject", QUrl::StrictMode ) ),
-          rdf_metadataPredicate( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataPredicate", QUrl::StrictMode ) ),
-          rdf_metadataObject( QUrl::fromEncoded( "http://aldebaran.org/learning#metadataObject", QUrl::StrictMode ) ),
-          rdf_isDisabled( QUrl::fromEncoded( "http://aldebaran.org/learning#isDisabled", QUrl::StrictMode ) )
+          rdf_metadataSubject( QUrl::fromEncoded( "http://softbank.org/sharedKnowledge#metadataSubject", QUrl::StrictMode ) ),
+          rdf_metadataPredicate( QUrl::fromEncoded( "http://softbank.org/sharedKnowledge#metadataPredicate", QUrl::StrictMode ) ),
+          rdf_metadataObject( QUrl::fromEncoded( "http://softbank.org/sharedKnowledge#metadataObject", QUrl::StrictMode ) ),
+          rdf_isDisabled( QUrl::fromEncoded( "http://softbank.org/sharedKnowledge#isDisabled", QUrl::StrictMode ) )
     {
     }
 
@@ -181,7 +181,7 @@ QUrl Soprano::Vocabulary::RDF::isDisabled()
 
 QUrl Soprano::Vocabulary::RDF::createAldebaranRessource(QString ressourceName)
 {
-  return QUrl("http://aldebaran.org/learning#"+ressourceName);
+  return QUrl("http://softbank.org/sharedKnowledge#"+ressourceName);
 }
 
 //QString Soprano::Vocabulary::RDF::getMetadataQuery(const QString& subject,

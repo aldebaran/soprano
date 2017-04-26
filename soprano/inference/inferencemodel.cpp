@@ -824,12 +824,12 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
 
 QString Soprano::Inference::InferenceModel::xUrlConversion(const Soprano::Node& node)
 {
-  QStringList splitedNode = node.toString().split("http://aldebaran.org/learning#");
+  QStringList splitedNode = node.toString().split("http://softbank.org/sharedKnowledge#");
 
   if(splitedNode.size() < 2)
     return node.toString();
 
-  QString nodeValue = "http://aldebaran.org/learning#" +QUrl::toPercentEncoding(splitedNode[1]);
+  QString nodeValue = "http://softbank.org/sharedKnowledge#" +QUrl::toPercentEncoding(splitedNode[1]);
   return nodeValue;
 }
 

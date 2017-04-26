@@ -371,7 +371,7 @@ Soprano::Node Soprano::Node::createResourceNode( const QUrl& uri )
 Soprano::Node Soprano::Node::createBlankNode( const QString& id )
 {
 //    return Node( id );
-    return createResourceNode(QUrl("http://aldebaran.org/learning#"+id));
+    return createResourceNode(QUrl("http://softbank.org/sharedKnowledge#"+id));
 }
 
 
