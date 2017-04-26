@@ -35,7 +35,7 @@
 #include <QtCore/QDebug>
 #include <QtCore/QUrl>
 
-QString alPrefix = "http://aldebaran.org/learning#";
+QString alPrefix = "http://softbank.org/sharedKnowledge#";
 
 namespace {
     // Match a node
