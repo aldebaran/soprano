@@ -285,6 +285,12 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
                                                   storageType.toUtf8().data(),
                                                   storageName.toUtf8().data(),
                                                   os.toUtf8().data() );
+
+//    QString options = "new='yes', host='localhost',database='red',user='foo','password='bar'";
+
+//    librdf_storage* storage=librdf_new_storage(world->worldPtr(), "mysql","db1", options.toUtf8().data());
+//    librdf_storage* storage=librdf_new_storage(world->worldPtr(), "sqlite", "db1");
+
     if( !storage ) {
         qDebug() << "(Soprano::Redland) storage creation failed!";
         qiLogError() << "(Soprano::Redland) storage creation failed!";

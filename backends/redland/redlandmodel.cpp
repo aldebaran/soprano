@@ -35,6 +35,7 @@
 #include "vocabulary/rdf.h"
 
 #include <QtCore/QDebug>
+#include <QTime>
 
 #include <qi/log.hpp>
 #include <QUuid>
@@ -67,7 +68,8 @@ public:
     Private() :
         world(0),
         model(0),
-        storage(0)
+        storage(0),
+        negationEnabled(false)
     {}
 
     World *world;
@@ -76,6 +78,7 @@ public:
     boost::function<void(QList<QString>)> fOntologyModified;
     boost::function<void(Soprano::Statement)> fStatementAdded;
     boost::function<void(Soprano::Statement)> fStatementRemoved;
+    bool negationEnabled;
 
     MultiMutex readWriteLock; // restricts multiple reads to one thread
 
@@ -246,39 +249,61 @@ librdf_model *Soprano::Redland::RedlandModel::redlandModel() const
 
 Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const Statement &statement )
 {
+//  QTime timer;
+//  timer.start();
+
   Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
   Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
   Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
   Soprano::Node isDisabled = Soprano::Node::createResourceNode(Vocabulary::RDF::isDisabled());
 
-  Soprano::Statement isDisabledStatement = Soprano::Statement(Soprano::Node::createEmptyNode(),
-                                                         isDisabled,
-                                                         Soprano::Node::createEmptyNode(),
-                                                         Soprano::Node::createEmptyNode());
-
-  Soprano::StatementIterator statements = listStatements(isDisabledStatement);
-
-  while(statements.next())
+  //   Prevent triplet to be added several times
+  if(!(statement.predicate() == metadataSubject ||
+       statement.predicate() == metadataPredicate ||
+       statement.predicate() == metadataObject ||
+       statement.predicate() == Vocabulary::RDF::createAldebaranRessource("timestamp")))
   {
-    Soprano::Statement metaObjectStatement = Soprano::Statement(statements.current().object(),
-                                                                metadataObject,
-                                                                statement.object(),
-                                                                Soprano::Node::createEmptyNode());
-    Soprano::Statement metaPredicateStatement = Soprano::Statement(statements.current().object(),
-                                                                   metadataPredicate,
-                                                                   statement.predicate(),
-                                                                   Soprano::Node::createEmptyNode());
-    Soprano::Statement metaSubjectStatement = Soprano::Statement(statements.current().object(),
-                                                                 metadataSubject,
-                                                                 statement.subject(),
-                                                                 Soprano::Node::createEmptyNode());
 
-    if(
-       containsAnyStatement(metaObjectStatement) &&
-       containsAnyStatement(metaPredicateStatement) &&
-       containsAnyStatement(metaSubjectStatement))
+    if(containsStatement(statement))
     {
-      return Error::ErrorNegation;
+      return Soprano::Error::ErrorAlreadyExist;
+    }
+//    qiLogError("CONTAINS") << timer.elapsed();
+//    timer.restart();
+  }
+
+  //Negation is automatically enabled when a rule with a negation effect is added to the model
+  if(d->negationEnabled)
+  {
+    Soprano::Statement isDisabledStatement = Soprano::Statement(Soprano::Node::createEmptyNode(),
+                                                                isDisabled,
+                                                                Soprano::Node::createEmptyNode(),
+                                                                Soprano::Node::createEmptyNode());
+
+    Soprano::StatementIterator statements = listStatements(isDisabledStatement);
+
+    while(statements.next())
+    {
+      Soprano::Statement metaObjectStatement = Soprano::Statement(statements.current().object(),
+                                                                  metadataObject,
+                                                                  statement.object(),
+                                                                  Soprano::Node::createEmptyNode());
+      Soprano::Statement metaPredicateStatement = Soprano::Statement(statements.current().object(),
+                                                                     metadataPredicate,
+                                                                     statement.predicate(),
+                                                                     Soprano::Node::createEmptyNode());
+      Soprano::Statement metaSubjectStatement = Soprano::Statement(statements.current().object(),
+                                                                   metadataSubject,
+                                                                   statement.subject(),
+                                                                   Soprano::Node::createEmptyNode());
+
+      if(
+         containsAnyStatement(metaObjectStatement) &&
+         containsAnyStatement(metaPredicateStatement) &&
+         containsAnyStatement(metaSubjectStatement))
+      {
+        return Error::ErrorNegation;
+      }
     }
   }
 
@@ -324,6 +349,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
             added = false;
         }
         else {*/
+
             if ( librdf_model_context_add_statement( d->model, redlandContext, redlandStatement ) ) {
                 d->world->freeStatement( redlandStatement );
                 d->world->freeNode( redlandContext );
@@ -331,7 +357,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
                                                              Error::ErrorUnknown ) ) );
                 d->readWriteLock.unlock();
                 return Error::ErrorUnknown;
-            }
+           }
         //}
 
         d->world->freeNode( redlandContext );
@@ -340,7 +366,15 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
     d->world->freeStatement( redlandStatement );
 
     // make sure we store everything in case we crash
-    librdf_model_sync( d->model );
+//    if(statement.predicate().toString().contains("timestamp"))
+//    if(statement.object().toString().contains("end"))
+//    {
+//      librdf_model_sync( d->model );
+//      qiLogError("SYNC") << "===================";
+//      qiLogError("SYNC") << "sync model " << timer.elapsed();
+//      qiLogError("SYNC") << "===================";
+//      timer.restart();
+//    }
 
     d->readWriteLock.unlock();
 
@@ -467,6 +501,13 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeStatement( const
 {
     d->readWriteLock.lockForWrite();
     Error::ErrorCode r = removeOneStatement( statement );
+//    qiLogError("OURS") <<  "============";
+//    qiLogError("OURS") <<  statement.subject().toString().toStdString();
+//    qiLogError("OURS") <<  statement.predicate().toString().toStdString();
+//    qiLogError("OURS") <<  statement.object().toString().toStdString();
+//    qiLogError("OURS") <<  statement.context().toString().toStdString();
+//    qiLogError("OURS") << Soprano::Error::errorMessage(r).toStdString();
+//    qiLogError("OURS") <<  "============";
 
     // make sure we store everything in case we crash
     librdf_model_sync( d->model );
@@ -693,3 +734,14 @@ QString Soprano::Redland::RedlandModel::xRemovePrefix(QString value)
   return result;
 }
 
+
+void Soprano::Redland::RedlandModel::enableNegation(bool enableNegation)
+{
+  d->negationEnabled = enableNegation;
+}
+
+
+void Soprano::Redland::RedlandModel::synchroniseDatabase() const
+{
+  librdf_model_sync( d->model );
+}

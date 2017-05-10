@@ -325,6 +325,13 @@ namespace Soprano
         virtual Node createBlankNode() = 0;
         //@}
 
+        // If enabled, each added statement will be checked if it is disable via a negation rule
+        virtual void enableNegation(bool enableNegation) = 0;
+
+        // Synchronise model with persistent storage
+        virtual void synchroniseDatabase() const = 0;
+
+
     Q_SIGNALS:
         /**
          * Emitted when new statements have been added to the model.
