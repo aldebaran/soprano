@@ -35,6 +35,7 @@
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 #include <QtCore/QDebug>
+#include <QTime>
 
 #include <qi/log.hpp>
 
@@ -81,6 +82,17 @@ static QString createUuid()
     return uid;
 }
 
+static QString createUuidFromStatement(const Soprano::Statement& statement)
+{
+  QUuid namespaceUuid = QUuid("00000000-0000-0000-0000-000000000000");
+  QString string = statement.subject().toString() + statement.predicate().toString() + statement.object().toString();
+  QString uid = QUuid::createUuidV3(namespaceUuid, QString(string)).toString();
+  uid = uid.mid( 1, uid.length()-2 );
+
+  return uid;
+}
+
+
 static QUrl createRandomUri()
 {
     return QUrl( "inference://localhost#" + createUuid());
@@ -114,6 +126,8 @@ Soprano::Inference::InferenceModel::InferenceModel( Model* parent )
 
 Soprano::Inference::InferenceModel::~InferenceModel()
 {
+  // Synchronise model with storage before destroying model
+  parentModel()->synchroniseDatabase();
     delete d;
 }
 
@@ -133,7 +147,12 @@ void Soprano::Inference::InferenceModel::setOptimizedQueriesEnabled( bool b )
 QString Soprano::Inference::InferenceModel::addRule( const Rule& rule )
 {
   QString ruleId = rule.getId();
+  if(rule.effectStyle() == "negation")
+  {
+    parentModel()->enableNegation(true);
+  }
   d->ruleMap.insert(ruleId, rule);
+
   return ruleId;
 }
 
@@ -175,10 +194,11 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::addStatement( cons
 
 Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeAllStatements( const Statement& statement )
 {
+//  parentModel()->removeAllStatements(statement);
     // FIXME: should we check if the statement could match some rule at all and if not do nothing?
 
     // are there any rules that handle objects? Probably not.
-      QTextStream s( stdout );
+//      QTextStream s( stdout );
       /////////////////////////
       /// IT'S NOT POSSIBLE TO REMOVE LITERAL NODE ???
       /////////////////////////
@@ -797,26 +817,76 @@ QUrl Soprano::Inference::InferenceModel::storeUncompressedSourceStatement( const
 
 Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statement& sourceStatement)
 {
+//  QTime timer;
+//  timer.start();
+
   Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
-  Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
-  Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
+//  Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
+//  Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
+
+//  QString subject = sourceStatement.subject().toString();
+//  QString predicate = sourceStatement.predicate().toString();
+//  QString object = sourceStatement.object().toString();
+
+//    QString stringQuery =
+//      "PREFIX al:<http://softbank.org/sharedKnowledge#> \n"
+//      "select ?metadata where { \n"
+//      "?metadata <" + metadataSubject.toString() +"> <"+ subject + "> . \n"
+//      "?metadata <" + metadataPredicate.toString() +"> <"+ predicate+ "> . \n"
+//      "?metadata <" + metadataObject.toString() +"> <"+ object + "> .}";
 
 
+//QList<Soprano::BindingSet> allBindings = executeQuery(stringQuery, Soprano::Query::QueryLanguageSparql).allBindings();
+//  Q_FOREACH(Soprano::BindingSet bs, allBindings)
+//  {
+//    if(bs.value("metadata").isValid())
+//    {
+//      return  bs.value("metadata");
+//    }
+//  }
+//  return Soprano::Node();
 
-  Soprano::StatementIterator statements = parentModel()->listStatements(Soprano::Node::createEmptyNode(),
-                                                         metadataObject,
-                                                         sourceStatement.object(),
-                                                         Soprano::Node::createEmptyNode());
+// Soprano::QueryResultIterator it = executeQuery(stringQuery, Soprano::Query::QueryLanguageSparql);
+// while(it.next())
+// {
+//   return it.binding("metadata");
+// }
+//  return Soprano::Node();
 
-  while(statements.next())
+
+  Soprano::Node metaDomain = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource("metaDomain"));
+
+  Node metaDataNode = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource(createUuidFromStatement(sourceStatement)));
+
+//  if(containsStatement(metaDataNode, metadataSubject, sourceStatement.subject(),Soprano::Node::createEmptyNode()))
+  if(containsStatement(metaDataNode, metadataSubject, sourceStatement.subject(), metaDomain))
   {
-    if(
-    containsAnyStatement(statements.current().subject(), metadataPredicate,sourceStatement.predicate() , Soprano::Node::createEmptyNode()) &&
-    containsAnyStatement(statements.current().subject(), metadataSubject, sourceStatement.subject(), Soprano::Node::createEmptyNode()))
-    {
-     return statements.current().subject();
-    }
+    return metaDataNode;
   }
+
+//  Soprano::StatementIterator statements = parentModel()->listStatements(Soprano::Node::createEmptyNode(),
+//                                                         metadataObject,
+//                                                         sourceStatement.object(),
+//                                                         Soprano::Node::createEmptyNode());
+//  qiLogError("LIST META") << timer.elapsed();
+////  timer.restart();
+
+//  int metaCount = 0;
+//  while(statements.next())
+//  {
+//  metaCount++;
+//    if(
+//    containsAnyStatement(statements.current().subject(), metadataPredicate,sourceStatement.predicate() , Soprano::Node::createEmptyNode()) &&
+//    containsAnyStatement(statements.current().subject(), metadataSubject, sourceStatement.subject(), Soprano::Node::createEmptyNode()))
+//    {
+//     return statements.current().subject();
+//    }
+//  }
+//    qiLogError("META TO CHECK") << metaCount;
+//    qiLogError("CONTAINS META") << timer.elapsed();
+//  timer.restart();
+
+
 
   return Soprano::Node();
 }
@@ -835,41 +905,59 @@ QString Soprano::Inference::InferenceModel::xUrlConversion(const Soprano::Node& 
 
 Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const Statement& statement)
 {
+  if(!statement.object().isResource())
+  {
+    throw std::runtime_error("Only statement with object of type ResourceNode have a meta node");
+  }
+
   Soprano::Node metaDataNode  = getMetadataNode(statement);
   if(!metaDataNode.isEmpty())
   {
     return metaDataNode;
   }
-  metaDataNode = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource(createUuid()));
-//  metaDataNode = Soprano::Node::createResourceNode(createRandomUri());
+
+//  metaDataNode = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource(createUuid()));
+  metaDataNode = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource(createUuidFromStatement(statement)));
 
   Soprano::Node metadataSubject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("subject"));
   Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("predicate"));
   Soprano::Node metadataObject = Soprano::Node::createResourceNode(Vocabulary::RDF::metadata("object"));
 
+
+
+//  time += timer.elapsed();
+//  qiLogError("META") << timer.elapsed();
+
+  Soprano::Node metaDomain = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource("metaDomain"));
+
   parentModel()->addStatement(metaDataNode,
                               metadataSubject,
                               statement.subject(),
-                              Soprano::Node::createEmptyNode());
+                              metaDomain);
+//                              Soprano::Node::createEmptyNode());
 
   parentModel()->addStatement(metaDataNode,
                               metadataPredicate,
                               statement.predicate(),
-                              Soprano::Node::createEmptyNode());
+                              metaDomain);
+//                              Soprano::Node::createEmptyNode());
 
   parentModel()->addStatement(metaDataNode,
                               metadataObject,
                               statement.object(),
-                              Soprano::Node::createEmptyNode());
+                              metaDomain);
+//                              Soprano::Node::createEmptyNode());
 
   //  if(getMetadataNode(statement).isEmpty())
   //    std::cout << "WHAT THE FUCK" << std::endl;
 
-  metaDataNode  = getMetadataNode(statement);
-  if(metaDataNode.isEmpty())
-  {
-  }
+//  metaDataNode  = getMetadataNode(statement);
+//  if(metaDataNode.isEmpty())
+//  {
+//  }
 
+//  time += timer.elapsed();
+//  qiLogError("META") << timer.elapsed();
 
   return metaDataNode;
 }

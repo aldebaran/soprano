@@ -86,6 +86,9 @@ namespace Soprano {
             void xStatementRemoved(const Soprano::Statement &statement);
             QString xRemovePrefix(QString value);
 
+            void enableNegation(bool enableNegation);
+            void synchroniseDatabase() const;
+
         private:
             class Private;
             Private *d;

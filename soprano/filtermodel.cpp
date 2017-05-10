@@ -104,16 +104,10 @@ void Soprano::FilterModel::setParentModel( Model* model )
 
 Soprano::Error::ErrorCode Soprano::FilterModel::addStatement( const Statement &statement )
 {
-//   Prevent triplet to be added several times
-  if(containsAnyStatement(statement))
-  {
-    return Soprano::Error::ErrorAlreadyExist;
-  }
-
-    Q_ASSERT( d->parent );
-    Error::ErrorCode c = d->parent->addStatement( statement );
-    setError( d->parent->lastError() );
-    return c;
+  Q_ASSERT( d->parent );
+  Error::ErrorCode c = d->parent->addStatement( statement );
+  setError( d->parent->lastError() );
+  return c;
 }
 
 
@@ -265,6 +259,17 @@ Soprano::Node Soprano::FilterModel::createBlankNode()
     return n;
 }
 
+void Soprano::FilterModel::enableNegation(bool enableNegation)
+{
+  Q_ASSERT( d->parent );
+  return d->parent->enableNegation(enableNegation);
+}
+
+
+void Soprano::FilterModel::synchroniseDatabase() const
+{
+  d->parent->synchroniseDatabase();
+}
 
 Soprano::Error::ErrorCode Soprano::FilterModel::write( QTextStream &os ) const
 {

@@ -178,6 +178,12 @@ namespace Soprano {
         virtual Node createBlankNode();
         //@}
 
+        // If enabled, each added statement will be checked if it is disable via a negation rule
+        virtual void enableNegation(bool enableNegation);
+
+        // Synchronise model with persistent storage
+        virtual void synchroniseDatabase() const;
+
         using Model::addStatement;
         using Model::removeStatement;
         using Model::removeAllStatements;
