@@ -34,10 +34,6 @@
 #include <QtCore/QTimer>
 #include <QtCore/QThreadPool>
 
-
-Q_DECLARE_METATYPE( Soprano::Statement )
-
-
 Soprano::Util::AsyncModelPrivate::AsyncModelPrivate( AsyncModel* parent )
     : mode( AsyncModel::SingleThreaded ),
       m_model( parent )

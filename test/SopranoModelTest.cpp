@@ -1082,9 +1082,6 @@ void SopranoModelTest::testIteratorNesting()
     QCOMPARE( cnt1, 20 );
 }
 
-
-Q_DECLARE_METATYPE( Soprano::Statement )
-
 namespace {
     /**
      * Give it a bit of time for the DBus client to deliver the signals.

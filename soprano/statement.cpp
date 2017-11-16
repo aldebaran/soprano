@@ -25,6 +25,15 @@
 
 #include <QtCore/QDebug>
 
+static void registerStatementMetatype()
+{
+  static bool registered = false;
+  if (!registered)
+  {
+    qRegisterMetaType<Soprano::Statement>();
+    registered = true;
+  }
+}
 
 class Soprano::Statement::Private : public QSharedData
 {
@@ -37,16 +46,19 @@ public:
 
 Soprano::Statement::Statement()
 {
+    registerStatementMetatype();
     d = new Private;
 }
 
 Soprano::Statement::Statement( const Statement &other )
 {
+    registerStatementMetatype();
     d = other.d;
 }
 
 Soprano::Statement::Statement( const Node &subject, const Node &predicate, const Node &object, const Node &context)
 {
+    registerStatementMetatype();
     d = new Private;
     d->subject = subject;
     d->predicate = predicate;

@@ -180,5 +180,7 @@ SOPRANO_EXPORT QDebug operator<<( QDebug s, const Soprano::Statement& );
  */
 SOPRANO_EXPORT QTextStream& operator<<( QTextStream& s, const Soprano::Statement& );
 
+Q_DECLARE_METATYPE(Soprano::Statement)
+
 #endif // SOPRANO_STATEMENT_H
 
