@@ -36,7 +36,6 @@ Q_DECLARE_METATYPE( Error::Error )
 Q_DECLARE_METATYPE( Error::ErrorCode )
 Q_DECLARE_METATYPE( LiteralValue )
 Q_DECLARE_METATYPE( Node )
-Q_DECLARE_METATYPE( Statement )
 Q_DECLARE_METATYPE( BindingSet )
 Q_DECLARE_METATYPE( BackendSetting )
 
