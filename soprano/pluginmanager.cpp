@@ -1,6 +1,5 @@
 /*
- * This file is part of Soprano Project.
- *
+ * This file is part of Soprano Project.  *
  * Copyright (C) 2007-2009 Sebastian Trueg <trueg@kde.org>
  *
  * This library is free software; you can redistribute it and/or
@@ -24,7 +23,7 @@
 #include "backend.h"
 #include "parser.h"
 #include "serializer.h"
-#include "soprano-config.h"
+//#include "soprano-config.h"
 #include "sopranopluginfile.h"
 #include "version.h"
 #include "sopranodirs.h"
@@ -35,18 +34,25 @@
 #include <QtCore/QMutex>
 #include <QtCore/QCoreApplication>
 
+#include <qi/log.hpp>
+qiLogCategory("pluginmanager");
+
+//#include "qi/application.hpp"
+
+//CROSS-COMPILATION
+#include "qi/path.hpp"
 
 namespace {
-    QString findPluginLib( const Soprano::SopranoPluginFile& file ) {
-        QStringList fileSearchPaths;
-        // the folder the plugin file is in
-        fileSearchPaths << file.fileName().section( '/', 0, -2 );
-#ifndef Q_OS_WIN
-        // the lib folder in the same prefix
-        fileSearchPaths << file.fileName().section( "/", 0, -5, QString::SectionIncludeTrailingSep ) + QLatin1String( SOPRANO_LIB_DIR );
-#endif
-        return Soprano::findLibraryPath( file.library(), fileSearchPaths, QStringList() << QLatin1String( "soprano" ) );
-    }
+//    QString findPluginLib( const Soprano::SopranoPluginFile& file ) {
+//        QStringList fileSearchPaths;
+//        // the folder the plugin file is in
+//        fileSearchPaths << file.fileName().section( '/', 0, -2 );
+//#ifndef Q_OS_WIN
+//        // the lib folder in the same prefix
+//        fileSearchPaths << file.fileName().section( "/", 0, -5, QString::SectionIncludeTrailingSep ) + QLatin1String( SOPRANO_LIB_DIR );
+//#endif
+//        return Soprano::findLibraryPath( file.library(), fileSearchPaths, QStringList() << QLatin1String( "soprano" ) );
+//    }
 
     QStringList pluginFileSearchPaths() {
         QStringList searchPaths;
@@ -137,11 +143,18 @@ const Soprano::Backend* Soprano::PluginManager::discoverBackendByName( const QSt
     loadAllPlugins();
     QHash<QString, PluginStub>::iterator it = d->backends.find( name );
     if( it != d->backends.end() )
+    {
         return qobject_cast<Backend*>( it->plugin() );
+    }
     else if ( !name.endsWith( QLatin1String( "backend" ) ) )
+    {
         return discoverBackendByName( name + QLatin1String( "backend" ) );
+    }
     else
+    {
+        qiLogError() << "Error while discovering backend";
         return 0;
+    }
 }
 
 
@@ -269,14 +282,37 @@ void Soprano::PluginManager::loadAllPlugins()
             searchPaths << pluginFileSearchPaths();
         }
 
-        Q_FOREACH( const QString& dir, searchPaths ) {
-            QDir pluginDir( dir );
-//            qDebug() << "(Soprano::PluginManager) searching plugin file from " << pluginDir.absolutePath();
-            QStringList pluginFiles = pluginDir.entryList( QStringList( QLatin1String( "*.desktop" ) ) );
-            Q_FOREACH( const QString& plugin, pluginFiles ) {
-                loadPlugin( pluginDir.absoluteFilePath( plugin ) );
-            }
-        }
+//STANDARD COMPILATION
+//        Q_FOREACH( const QString& dir, searchPaths ) {
+//            QDir pluginDir( dir );
+//            QStringList pluginFiles = pluginDir.entryList( QStringList( QLatin1String( "*.desktop" ) ) );
+//            Q_FOREACH( const QString& plugin, pluginFiles ) {
+//                loadPlugin( pluginDir.absoluteFilePath( plugin ) );
+//            }
+//        }
+
+//CROSS-COMPILATION
+//
+//          QDir pluginDir(QString(qi::Application::realProgram()).split("/bin")[0]+ "/share/soprano");
+//        QString pluginFile = QString::fromUtf8(qi::path::findData("dialog", "redlandbackend.desktop").c_str());
+        QString pluginFile = QString::fromUtf8(qi::path::findData("dialog", "redlandbackend.desktop").c_str());
+//        QString pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-linux64/sdk/share/dialog/redlandbackend.desktop";
+        QString test = QString::fromStdString(qi::path::userWritableDataPath("dialog", ""));
+
+//    QString pluginFile = "/home/nao/foo/share/dialog/redlandbackend.desktop";
+
+    qDebug() << "+++++++++++++++++++++++++++++";
+    qDebug() << test;
+    qDebug() << "_____________________________";
+
+
+        loadPlugin(pluginFile);
+
+//            QStringList pluginFiles = pluginDir.entryList( QStringList( QLatin1String( "*.desktop" ) ) );
+//            Q_FOREACH( const QString& plugin, pluginFiles ) {
+//                loadPlugin( pluginDir.absoluteFilePath( plugin ) );
+//            }
+
 
         d->pluginsLoaded = true;
     }
@@ -285,15 +321,39 @@ void Soprano::PluginManager::loadAllPlugins()
 void Soprano::PluginManager::loadPlugin( const QString& path )
 {
     SopranoPluginFile f;
-//    qDebug() << path;
+    qiLogError() << "=============================";
+    qiLogError() << "======PATH===========";
+    qiLogError() << path.toStdString();
+    qiLogError() << "=============================";
+    qiLogError() << "=============================";
+
     if ( f.open( path ) ) {
 //        qDebug() << "(Soprano::PluginManager) found plugin file" << path;
-        if ( f.sopranoVersion().left( f.sopranoVersion().indexOf( '.' ) ).toUInt() == Soprano::versionMajor() ) {
+//
+//        if ( f.sopranoVersion().left( f.sopranoVersion().indexOf( '.' ) ).toUInt() == Soprano::versionMajor() ) {
+
 //            qDebug() << "(Soprano::PluginManager) plugin has proper version.";
 
-            QString libPath = findPluginLib( f );
+//            QString libPath = findPluginLib( f );
+//            #
+//            QString libPath = "/home/nao/foo/lib/lib" + f.library() + ".so";
+//
+//CROSS-COMPILATION
+//            QString libPath = QString(qi::Application::realProgram()).split("/bin")[0]+ "/lib/lib" + f.library() + ".so";
+
+            QString libPath = path.split("/share/dialog")[0]+ "/lib/lib" + f.library() + ".so";
+
+                qiLogError() << "=============================";
+    qiLogError() << "LIB PATH";
+    qiLogError() << libPath.toStdString();
+    qiLogError() << "=============================";
+    qiLogError() << "=============================";
+
+
+
             if ( libPath.isEmpty() ) {
                 qDebug() << "Failed to find the library for plugin" << f.pluginName() << "(" << f.library() << ")";
+                qiLogError() << "Failed to find the library for plugin" << f.pluginName().toStdString() << "(" << f.library().toStdString() << ")";
                 return;
             }
 
@@ -341,13 +401,15 @@ void Soprano::PluginManager::loadPlugin( const QString& path )
             else {
                 qDebug() << "(Soprano::PluginManager) invalid plugin type:" << type;
             }
-        }
-        else {
-        	   qDebug() << "(Soprano::PluginManager) plugin has major version:"
-        	            << f.sopranoVersion().left( f.sopranoVersion().indexOf( '.' ) ).toUInt()
-                        << "required major version:" << Soprano::versionMajor();
-        }
+//        }
+//        else {
+//        	   qDebug() << "(Soprano::PluginManager) plugin has major version:"
+//        	            << f.sopranoVersion().left( f.sopranoVersion().indexOf( '.' ) ).toUInt()
+//                        << "required major version:" << Soprano::versionMajor();
+//        }
+
     }
+
 }
 
 

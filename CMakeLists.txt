@@ -33,17 +33,16 @@ set(SOPRANO_GENERIC_SOVERSION "1")
 set(SOPRANO_NON_GENERIC_SOVERSION "4")
 
 ##################  User options  ################################
-
 option(QT5_BUILD "Build Soprano using the Qt5 framework" FALSE)
-option(SOPRANO_BUILD_TESTS "Build all unit tests")
-option(SOPRANO_DISABLE_REDLAND_BACKEND "Disable compilation of Redland storage backend")
-option(SOPRANO_DISABLE_SESAME2_BACKEND "Disable compilation of Sesame2 storage backend")
-option(SOPRANO_DISABLE_VIRTUOSO_BACKEND "Disable compilation of Virtuoso storage backend")
-option(SOPRANO_DISABLE_CLUCENE_INDEX "Disable compilation of Clucene-based full-text index")
-option(SOPRANO_DISABLE_RAPTOR_PARSER "Disable compilation of Raptor parser plugin")
-option(SOPRANO_DISABLE_RAPTOR_SERIALIZER "Disable compilation of Raptor RDF serializer plugin")
-option(SOPRANO_DISABLE_DBUS "Disable D-Bus integration")
-option(SOPRANO_BUILD_API_DOCS "Build Soprano API documentation")
+option(SOPRANO_BUILD_TESTS "Build all unit tests" ${QI_WITH_TESTS})
+option(SOPRANO_DISABLE_REDLAND_BACKEND "Disable compilation of Redland storage backend" FALSE)
+option(SOPRANO_DISABLE_SESAME2_BACKEND "Disable compilation of Sesame2 storage backend" TRUE)
+option(SOPRANO_DISABLE_VIRTUOSO_BACKEND "Disable compilation of Virtuoso storage backend" TRUE)
+option(SOPRANO_DISABLE_CLUCENE_INDEX "Disable compilation of Clucene-based full-text index" TRUE)
+option(SOPRANO_DISABLE_RAPTOR_PARSER "Disable compilation of Raptor parser plugin" FALSE)
+option(SOPRANO_DISABLE_RAPTOR_SERIALIZER "Disable compilation of Raptor RDF serializer plugin" FALSE)
+option(SOPRANO_DISABLE_DBUS "Disable D-Bus integration" TRUE)
+option(SOPRANO_BUILD_API_DOCS "Build Soprano API documentation" FALSE)
 
 if(SOPRANO_BUILD_TESTS)
   enable_testing()
@@ -69,6 +68,8 @@ else()
 endif()
 
 ##################  find packages  ################################
+find_package(qibuild REQUIRED)
+find_package(qi REQUIRED)
 
 if(QT5_BUILD)
   find_package(Qt5 COMPONENTS Core DBus Network Xml REQUIRED CONFIG)
@@ -260,8 +261,10 @@ endif()
 
 
 ##################  some compiler settings ################################
+
 if(CMAKE_COMPILER_IS_GNUCXX AND NOT WIN32 )
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -ansi -Wundef -Wcast-align -Wchar-subscripts -Wall -W -Wpointer-arith -Wformat-security -fno-check-new -fno-common")
+    # C++11 must be enabled to use libqi
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -Wundef -Wcast-align -Wchar-subscripts -Wall -W -Wpointer-arith -Wformat-security -fno-check-new -fno-common")
     include(CheckCXXCompilerFlag)
     check_cxx_compiler_flag(-fvisibility=hidden __SOPRANO_HAVE_GCC_VISIBILITY)
     check_cxx_compiler_flag(-fvisibility-inlines-hidden __SOPRANO_HAVE_GCC_INLINE_VISIBILITY)
@@ -276,7 +279,8 @@ if(MSVC)
     add_definitions(-D_CRT_SECURE_NO_DEPRECATE -D_CRT_NONSTDC_NO_DEPRECATE -Zc:wchar_t-)
 endif()
 if(MINGW)
-    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -ansi -Wundef -Wcast-align -Wchar-subscripts -Wall -Wpointer-arith -Wformat-security -fno-check-new -fno-common")
+    # C++11 must be enabled to use libqi
+    set (CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wnon-virtual-dtor -Wno-long-long -Wundef -Wcast-align -Wchar-subscripts -Wall -Wpointer-arith -Wformat-security -fno-check-new -fno-common")
 endif()
 
 if(WINCE)
@@ -289,6 +293,7 @@ endif()
 # Soprano will handle large files in LockFile (Virtuoso DB files)
 add_definitions(-D_FILE_OFFSET_BITS=64)
 
+message("CXX flags: ${CMAKE_CXX_FLAGS}")
 
 ##################  add subdirectories ################################
 if(BUILD_CLUCENE_INDEX)

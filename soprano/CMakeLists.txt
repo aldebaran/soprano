@@ -1,4 +1,6 @@
 project(soprano_core)
+find_package(qibuild REQUIRED)
+find_package(qi REQUIRED)
 
 # overriding QT_USE_FILE since that includes QT_INCLUDE_DIR before soprano headers
 set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
@@ -104,6 +106,8 @@ if(QT5_BUILD)
 else()
   target_link_libraries(soprano ${QT_QTCORE_LIBRARY})
 endif()
+
+qi_use_lib(soprano qi)
 
 set_target_properties(soprano PROPERTIES
   VERSION 4.3.0
