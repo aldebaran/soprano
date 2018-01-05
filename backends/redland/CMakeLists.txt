@@ -52,10 +52,10 @@ if(BUILD_REDLAND_BACKEND)
 
   install(TARGETS soprano_redlandbackend ${PLUGIN_INSTALL_DIR})
 
-  configure_file(redlandbackend.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/redlandbackend.desktop)
+  configure_file(redlandbackend.desktop.cmake ${PLUGIN_STAGE_DIR}/redlandbackend.desktop)
 
   install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/redlandbackend.desktop
+    ${PLUGIN_STAGE_DIR}/redlandbackend.desktop
     DESTINATION ${DATA_INSTALL_DIR}/soprano/plugins
     )
 endif()

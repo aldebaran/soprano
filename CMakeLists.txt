@@ -15,6 +15,14 @@ set(CMAKE_INCLUDE_CURRENT_DIR TRUE)
 
 # Used to set some generic paths
 include(GNUInstallDirs)
+message(${CMAKE_INSTALL_LIBDIR})
+
+# Puts all runtime output to a single directory to help looking up
+set(STAGE_DIR "${CMAKE_CURRENT_BINARY_DIR}/sdk")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${STAGE_DIR}/bin")
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${STAGE_DIR}/lib")
+set(DATA_STAGE_DIR "${STAGE_DIR}/share")
+set(PLUGIN_STAGE_DIR "${DATA_STAGE_DIR}/soprano/plugins")
 
 # Used to create CMake config files
 include(CMakePackageConfigHelpers)
@@ -69,7 +77,6 @@ endif()
 
 ##################  find packages  ################################
 find_package(qibuild REQUIRED)
-
 qi_add_optional_package(REDLAND)
 qi_add_optional_package(RAPTOR2)
 qi_add_optional_package(RASQAL)
@@ -228,6 +235,9 @@ endif()
 set(HAVE_DBUS BUILD_DBUS_SUPPORT)
 
 ##################  setup install directories  ################################
+
+# To allow qibuild projects depending on Soprano to access its data
+qi_stage_dir(${STAGE_DIR})
 
 # the following are directories where stuff will be installed to
 set(BIN_INSTALL_DIR          "${CMAKE_INSTALL_FULL_BINDIR}" CACHE PATH "The binaries directory")

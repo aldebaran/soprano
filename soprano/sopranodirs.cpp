@@ -28,6 +28,8 @@
 #include <QtCore/QCoreApplication>
 #include <QtCore/QDebug>
 
+#include <qi/path.hpp>
+
 #ifdef Q_OS_WIN
 static inline QString getWinPrefix()
 {
@@ -72,7 +74,8 @@ namespace {
 QString Soprano::findLibraryPath( const QString& libName, const QStringList& extraDirs, const QStringList& subDirs_ )
 {
     // paths to search for libs
-    QStringList dirs = libDirs() + extraDirs;
+    QStringList dirs = extraDirs + libDirs();
+    qDebug() << "Looking for " << libName << "in: " << dirs;
 
     // subdirs to search
     QStringList subDirs;
@@ -124,6 +127,8 @@ QStringList Soprano::envDirList( const char* var )
 QStringList Soprano::libDirs()
 {
     QStringList paths = QCoreApplication::libraryPaths();
+    for (const std::string& path: qi::path::libPaths())
+        paths << QString::fromUtf8(path.c_str());
     paths << QLatin1String( SOPRANO_FULL_LIB_DIR );
 #ifdef Q_OS_WIN
     paths << QLatin1String( SOPRANO_BIN_DIR );
@@ -142,6 +147,9 @@ QStringList Soprano::libDirs()
 QStringList Soprano::dataDirs()
 {
     QStringList paths;
+    paths << QCoreApplication::applicationDirPath() + "/share";
+    for (const std::string& path: qi::path::dataPaths())
+        paths << QString::fromUtf8(path.c_str());
     paths << QLatin1String( SOPRANO_DATA_DIR )
 #ifdef Q_OS_WIN
           << getWinPrefix() + QLatin1String( "/share" )
