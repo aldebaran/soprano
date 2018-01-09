@@ -185,7 +185,7 @@ target_link_libraries(serveroperatortest soprano ${Soprano_test_link_libraries})
 # async model test
 set(asyncmodeltest_SRC asyncresultwaiter.cpp asyncmodeltest.cpp)
 add_executable(asyncmodeltest ${asyncmodeltest_SRC})
-target_link_libraries(asyncmodeltest soprano ${Soprano_test_link_libraries})
+target_link_libraries(asyncmodeltest soprano ${Soprano_test_link_libraries} ${RAPTOR2_LIBRARY})
 
 if(BUILD_VIRTUOSO_BACKEND)
   add_executable(virtuosobackendtest virtuosobackendtest.cpp)

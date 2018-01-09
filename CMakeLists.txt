@@ -120,8 +120,8 @@ if(NOT SOPRANO_DISABLE_RAPTOR_PARSER OR NOT SOPRANO_DISABLE_RAPTOR_SERIALIZER OR
                          PURPOSE "Needed to build the Raptor parser and Redland backend"
   )
 
-  find_package(Raptor2 2.0.0)
-  set_package_properties(Raptor PROPERTIES
+  find_package(Raptor2)
+  set_package_properties(Raptor2 PROPERTIES
                          URL "http://librdf.org/raptor"
                          DESCRIPTION "Raptor RDF Syntax Library"
                          TYPE RECOMMENDED
