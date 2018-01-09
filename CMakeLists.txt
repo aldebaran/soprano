@@ -41,7 +41,7 @@ set(SOPRANO_GENERIC_SOVERSION "1")
 set(SOPRANO_NON_GENERIC_SOVERSION "4")
 
 ##################  User options  ################################
-option(QT5_BUILD "Build Soprano using the Qt5 framework" FALSE)
+option(QT5_BUILD "Build Soprano using the Qt5 framework" TRUE)
 option(SOPRANO_BUILD_TESTS "Build all unit tests" ${QI_WITH_TESTS})
 option(SOPRANO_DISABLE_REDLAND_BACKEND "Disable compilation of Redland storage backend" FALSE)
 option(SOPRANO_DISABLE_SESAME2_BACKEND "Disable compilation of Sesame2 storage backend" TRUE)
