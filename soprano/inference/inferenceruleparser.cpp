@@ -183,17 +183,17 @@ public:
 
       QList<Soprano::Inference::StatementPattern> negationPatterns;
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata"),
                                                                    metadataSubject,
-                                                                   subjectPattern);
+                                                                   subjectPattern));
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata"),
                                                                    metadataPredicate,
-                                                                   predicatePattern);
+                                                                   predicatePattern));
 
-      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata")),
+      negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("metadata"),
                                                                    metadataObject,
-                                                                   objectPattern);
+                                                                   objectPattern));
 
       negationPatterns.append(Soprano::Inference::StatementPattern(Soprano::Inference::NodePattern("disablingMetadata"),
                                                                    Soprano::Node::createResourceNode(Vocabulary::RDF::isDisabled()),
@@ -275,7 +275,6 @@ Soprano::Inference::Rule Soprano::Inference::RuleParser::parseRule( const QStrin
   }
 
   QRegExp queryPattern(QLatin1String("(\\(select[^\\}]+\\}\\))"));
-  int effectPos = queryPattern.lastIndexIn(encodedLine);
   queryPattern.capturedTexts();
   QString condition = queryPattern.cap( 1 );
   QString customizedLine = encodedLine;

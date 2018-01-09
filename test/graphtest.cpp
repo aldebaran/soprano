@@ -115,6 +115,16 @@ namespace {
             return m_graph.isEmpty();
         }
 
+        void enableNegation(bool)
+        {
+          throw std::runtime_error("not implemented");
+        }
+
+        void synchroniseDatabase() const
+        {
+          throw std::runtime_error("not implemented");
+        }
+
     private:
         Soprano::Graph m_graph;
     };
