@@ -58,21 +58,6 @@ static Soprano::Node compressStatement( const Soprano::Statement& statement )
     return Soprano::LiteralValue( s );
 }
 
-
-static Soprano::Statement uncompressStatement( const Soprano::Node& compressedStatement )
-{
-  Soprano::Statement uncompressedStatement;
-  QList<QString> stringNodes = compressedStatement.toString().remove(">").split("<");
-
-  if(stringNodes.size() == 3)
-  {
-    uncompressedStatement.setSubject(Soprano::Node(stringNodes[0]));
-    uncompressedStatement.setPredicate(Soprano::Node(stringNodes[1]));
-    uncompressedStatement.setObject(Soprano::Node(stringNodes[2]));
-  }
-  return uncompressedStatement;
-}
-
 static QString createUuid()
 {
     // FIXME: check if the uri already exists

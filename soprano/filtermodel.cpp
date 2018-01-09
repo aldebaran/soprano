@@ -162,7 +162,7 @@ bool Soprano::FilterModel::containsAnyStatement( const Statement &statement ) co
       d->parent->lastError();
       return b;
     }
-    return Error::ErrorCode::ErrorUnknown;
+    return false;
 }
 
 

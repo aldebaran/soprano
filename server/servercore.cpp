@@ -249,6 +249,7 @@ void Soprano::Server::ServerCore::registerAsDBusObject( const QString& objectPat
         d->dbusController = new Soprano::Server::DBusController( this, path );
     }
 #else
+    Q_UNUSED(objectPath);
     qFatal("Soprano has been built without D-Bus support!" );
 #endif
 }
