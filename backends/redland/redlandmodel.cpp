@@ -36,11 +36,7 @@
 
 #include <QtCore/QDebug>
 #include <QTime>
-
-#include <qi/log.hpp>
 #include <QUuid>
-
-qiLogCategory("redlandmodel");
 
 
 namespace {
@@ -268,7 +264,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
     {
       return Soprano::Error::ErrorAlreadyExist;
     }
-//    qiLogError("CONTAINS") << timer.elapsed();
+//    qDebug() << timer.elapsed();
 //    timer.restart();
   }
 
@@ -370,9 +366,9 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
 //    if(statement.object().toString().contains("end"))
 //    {
 //      librdf_model_sync( d->model );
-//      qiLogError("SYNC") << "===================";
-//      qiLogError("SYNC") << "sync model " << timer.elapsed();
-//      qiLogError("SYNC") << "===================";
+//      qDebug() << "===================";
+//      qDebug() << "sync model " << timer.elapsed();
+//      qDebug() << "===================";
 //      timer.restart();
 //    }
 
@@ -501,13 +497,13 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeStatement( const
 {
     d->readWriteLock.lockForWrite();
     Error::ErrorCode r = removeOneStatement( statement );
-//    qiLogError("OURS") <<  "============";
-//    qiLogError("OURS") <<  statement.subject().toString().toStdString();
-//    qiLogError("OURS") <<  statement.predicate().toString().toStdString();
-//    qiLogError("OURS") <<  statement.object().toString().toStdString();
-//    qiLogError("OURS") <<  statement.context().toString().toStdString();
-//    qiLogError("OURS") << Soprano::Error::errorMessage(r).toStdString();
-//    qiLogError("OURS") <<  "============";
+//    qDebug() <<  "============";
+//    qDebug() <<  statement.subject().toString().toStdString();
+//    qDebug() <<  statement.predicate().toString().toStdString();
+//    qDebug() <<  statement.object().toString().toStdString();
+//    qDebug() <<  statement.context().toString().toStdString();
+//    qDebug() << Soprano::Error::errorMessage(r).toStdString();
+//    qDebug() <<  "============";
 
     // make sure we store everything in case we crash
     librdf_model_sync( d->model );

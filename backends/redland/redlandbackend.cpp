@@ -35,10 +35,6 @@
 #include <QtCore/QDir>
 #include <QtCore/QMutexLocker>
 
-#include <qi/log.hpp>
-
-qiLogCategory("redlandbackend");
-
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(soprano_redlandbackend, Soprano::Redland::BackendPlugin)
 #endif
@@ -122,8 +118,7 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
                                                   storageName.toUtf8().data(),
                                                   os.toUtf8().data() );
     if( !storage ) {
-        qDebug() << "(Soprano::Redland) storage creation failed!";
-        qiLogError() << "(Soprano::Redland) storage creation failed!";
+        qWarning() << "(Soprano::Redland) storage creation failed!";
         setError( world->lastError() );
 //        delete world;
         return 0;
@@ -134,7 +129,7 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
         librdf_free_storage( storage );
         setError( world->lastError() );
 //        delete world;
-        qDebug() << "JE SAIs PAS ! :'( ";
+        qWarning() << "JE SAIs PAS ! :'( ";
         return 0;
     }
     return new RedlandModel( this, model, storage, world);
@@ -204,8 +199,7 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
                                                   storageName.toUtf8().data(),
                                                   os.toUtf8().data() );
     if( !storage ) {
-        qDebug() << "(Soprano::Redland) storage creation failed!";
-        qiLogError() << "(Soprano::Redland) storage creation failed!";
+        qWarning() << "(Soprano::Redland) storage creation failed!";
         setError( world->lastError() );
 //        delete world;
         return 0;
@@ -292,8 +286,7 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
 //    librdf_storage* storage=librdf_new_storage(world->worldPtr(), "sqlite", "db1");
 
     if( !storage ) {
-        qDebug() << "(Soprano::Redland) storage creation failed!";
-        qiLogError() << "(Soprano::Redland) storage creation failed!";
+        qWarning() << "(Soprano::Redland) storage creation failed!";
         setError( world->lastError() );
 //        delete world;
         return 0;

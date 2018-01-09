@@ -30,7 +30,6 @@ if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR_SERIALIZER)
   add_library(soprano_redlandcore STATIC ${redland_core_SRC})
 
   target_link_libraries(soprano_redlandcore soprano ${REDLAND_LIBRARIES})
-  qi_use_lib(soprano_redlandcore qi)
 endif()
 
 if(BUILD_REDLAND_BACKEND)
