@@ -32,14 +32,10 @@
 #include "nodeiterator.h"
 #include <iostream>
 
-#include <QtCore/QString>
-#include <QtCore/QUuid>
 #include <QtCore/QDebug>
-#include <QTime>
-
-#include <qi/log.hpp>
-
-qiLogCategory("inferencemodel");
+#include <QtCore/QString>
+#include <QtCore/QTime>
+#include <QtCore/QUuid>
 
 QString learningDomain = "com.aldebaran.learning";
 
@@ -1019,13 +1015,13 @@ Soprano::Statement Soprano::Inference::InferenceModel::getStatementFromMetadataN
      metadataPredicateStatement.size() < 1 ||
      metadataObjectStatement.size() < 1)
   {
-    qiLogInfo() << "This id does not correspond to any triplet";
+    qInfo() << "This id does not correspond to any triplet";
   }
   else if (metadataSubjectStatement.size() > 1 ||
            metadataPredicateStatement.size() > 1 ||
            metadataObjectStatement.size() > 1)
   {
-    qiLogInfo() << " More than 3 metadata nodes are linked to this node";
+    qInfo() << " More than 3 metadata nodes are linked to this node";
   }
 
   //Removing all incoherent triplets link to this metadaNode.

@@ -25,7 +25,7 @@
 
 #include <QtCore/QStringList>
 
-#include <boost/function.hpp>
+#include <functional>
 
 #include "soprano_export.h"
 #include "sopranotypes.h"
@@ -95,10 +95,10 @@ namespace Soprano {
      */
     SOPRANO_EXPORT Model* createModel( const BackendSettings& settings = BackendSettings() );
     SOPRANO_EXPORT Model* createModel( const BackendSettings& settings,
-                                       boost::function<void(QList<QString>)> ontologyModified);
+                                       std::function<void(QList<QString>)> ontologyModified);
     SOPRANO_EXPORT Model* createModel( const BackendSettings& settings,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved);
+                            std::function<void(Statement)> statementAdded,
+                            std::function<void(Statement)> statementRemoved);
 }
 
 #endif // SOPRANO_H

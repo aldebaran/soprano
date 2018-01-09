@@ -28,6 +28,8 @@
 #include <QtCore/QMutex>
 #include <QtCore/QtPlugin>
 
+#include <functional>
+
 namespace Soprano
 {
     namespace Redland
@@ -52,11 +54,15 @@ namespace Soprano
              *     Soprano::BackendOptionStorageMemory change the values of redland options "dir" and "has-type".
              */
             StorageModel* createModel( const BackendSettings& settings = BackendSettings() ) const;
-            StorageModel* createModel( const BackendSettings& settings,
-                                       boost::function<void(QList<QString>)> ontologyModified) const;
-            StorageModel* createModel( const BackendSettings& settings,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved) const;
+
+            StorageModel* createModel(
+                const BackendSettings& settings,
+                const std::function<void(QList<QString>)> ontologyModified ) const;
+
+            StorageModel* createModel(
+                const BackendSettings& settings,
+                std::function<void(Statement)> statementAdded,
+                std::function<void(Statement)> statementRemoved) const;
 
             bool deleteModelData( const BackendSettings& settings ) const;
 

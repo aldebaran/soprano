@@ -50,9 +50,6 @@ Soprano::SopranoPluginFile::~SopranoPluginFile()
 bool Soprano::SopranoPluginFile::open( const QString& path )
 {
     if ( DesktopFile::open( path ) ) {
-      QString lib = library();
-      QString version = sopranoVersion();
-
         return !library().isEmpty() && !sopranoVersion().isEmpty();
     }
     else {

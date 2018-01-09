@@ -72,7 +72,8 @@ namespace {
 QString Soprano::findLibraryPath( const QString& libName, const QStringList& extraDirs, const QStringList& subDirs_ )
 {
     // paths to search for libs
-    QStringList dirs = libDirs() + extraDirs;
+    QStringList dirs = extraDirs + libDirs();
+    qDebug() << "Looking for " << libName << "in: " << dirs;
 
     // subdirs to search
     QStringList subDirs;
@@ -132,7 +133,6 @@ QStringList Soprano::libDirs()
 #else
     paths << QLatin1String( "/usr/" SOPRANO_LIB_DIR );
     paths << QLatin1String( "/usr/local/" SOPRANO_LIB_DIR );
-    paths << QLatin1String( "/usr/share/" SOPRANO_LIB_DIR );
     paths += Soprano::envDirList( "LD_LIBRARY_PATH" );
 #endif
     return paths;

@@ -26,12 +26,9 @@
 #include "nodeiterator.h"
 #include "query/query.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QList>
-
-#include <qi/log.hpp>
-#include <QPointer>
-
-qiLogCategory("filtermodel");
+#include <QtCore/QPointer>
 
 class Soprano::FilterModel::Private
 {
@@ -58,7 +55,7 @@ Soprano::FilterModel::FilterModel( Model* parent )
 {
   if(!parent)
   {
-    qiLogError() << "Error while creating model";
+    qWarning() << "Error while creating model";
   }
     setParentModel( parent );
 }

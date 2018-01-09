@@ -36,11 +36,7 @@
 
 #include <QtCore/QDebug>
 #include <QTime>
-
-#include <qi/log.hpp>
 #include <QUuid>
-
-qiLogCategory("redlandmodel");
 
 
 namespace {
@@ -75,9 +71,9 @@ public:
     World *world;
     librdf_model *model;
     librdf_storage *storage;
-    boost::function<void(QList<QString>)> fOntologyModified;
-    boost::function<void(Soprano::Statement)> fStatementAdded;
-    boost::function<void(Soprano::Statement)> fStatementRemoved;
+    std::function<void(QList<QString>)> fOntologyModified;
+    std::function<void(Soprano::Statement)> fStatementAdded;
+    std::function<void(Soprano::Statement)> fStatementRemoved;
     bool negationEnabled;
 
     MultiMutex readWriteLock; // restricts multiple reads to one thread
@@ -182,7 +178,7 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
 }
 
 Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
-                                              boost::function<void(QList<QString>)> ontologyModified)
+                                              std::function<void(QList<QString>)> ontologyModified)
     : StorageModel( b )
 {
     d = new Private;
@@ -196,8 +192,8 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
 }
 
 Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
-                                              boost::function<void(Statement)> statementAdded,
-                                              boost::function<void(Statement)> statementRemoved)
+                                              std::function<void(Statement)> statementAdded,
+                                              std::function<void(Statement)> statementRemoved)
 
     : StorageModel( b )
 {
@@ -268,7 +264,7 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
     {
       return Soprano::Error::ErrorAlreadyExist;
     }
-//    qiLogError("CONTAINS") << timer.elapsed();
+//    qDebug() << timer.elapsed();
 //    timer.restart();
   }
 
@@ -370,9 +366,9 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
 //    if(statement.object().toString().contains("end"))
 //    {
 //      librdf_model_sync( d->model );
-//      qiLogError("SYNC") << "===================";
-//      qiLogError("SYNC") << "sync model " << timer.elapsed();
-//      qiLogError("SYNC") << "===================";
+//      qDebug() << "===================";
+//      qDebug() << "sync model " << timer.elapsed();
+//      qDebug() << "===================";
 //      timer.restart();
 //    }
 
@@ -501,13 +497,13 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::removeStatement( const
 {
     d->readWriteLock.lockForWrite();
     Error::ErrorCode r = removeOneStatement( statement );
-//    qiLogError("OURS") <<  "============";
-//    qiLogError("OURS") <<  statement.subject().toString().toStdString();
-//    qiLogError("OURS") <<  statement.predicate().toString().toStdString();
-//    qiLogError("OURS") <<  statement.object().toString().toStdString();
-//    qiLogError("OURS") <<  statement.context().toString().toStdString();
-//    qiLogError("OURS") << Soprano::Error::errorMessage(r).toStdString();
-//    qiLogError("OURS") <<  "============";
+//    qDebug() <<  "============";
+//    qDebug() <<  statement.subject().toString().toStdString();
+//    qDebug() <<  statement.predicate().toString().toStdString();
+//    qDebug() <<  statement.object().toString().toStdString();
+//    qDebug() <<  statement.context().toString().toStdString();
+//    qDebug() << Soprano::Error::errorMessage(r).toStdString();
+//    qDebug() <<  "============";
 
     // make sure we store everything in case we crash
     librdf_model_sync( d->model );

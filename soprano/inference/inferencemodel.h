@@ -24,7 +24,7 @@
 
 #include "filtermodel.h"
 #include "soprano_export.h"
-#include "boost/function.hpp"
+#include <functional>
 
 class QUrl;
 
@@ -77,10 +77,10 @@ namespace Soprano {
         public:
             InferenceModel( Model* parent );
             InferenceModel( Model* parent,
-                            boost::function<void(QList<QString>)> ontologyModified);
+                            std::function<void(QList<QString>)> ontologyModified);
             InferenceModel( Model* parent,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved);
+                            std::function<void(Statement)> statementAdded,
+                            std::function<void(Statement)> statementRemoved);
 
 
             ~InferenceModel();

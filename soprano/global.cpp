@@ -23,9 +23,7 @@
 #include "pluginmanager.h"
 #include "backend.h"
 #include "storagemodel.h"
-#include "qi/log.hpp"
-
-qiLogCategory("global");
+#include <QtCore/QDebug>
 
 static const Soprano::Backend* s_defaultBackend = 0;
 
@@ -67,31 +65,31 @@ Soprano::Model* Soprano::createModel( const BackendSettings& settings)
     if( s_defaultBackend )
         return s_defaultBackend->createModel( settings);
     else
-      qiLogError() <<  "ERROR IN INIT SOPRANO";
+      qWarning() <<  "ERROR IN INIT SOPRANO";
     return 0;
 }
 
 Soprano::Model* Soprano::createModel( const BackendSettings& settings,
-                                      boost::function<void(QList<QString>)> ontologyModified)
+                                      std::function<void(QList<QString>)> ontologyModified)
 {
     initSoprano();
 
     if( s_defaultBackend )
         return s_defaultBackend->createModel( settings, ontologyModified);
     else
-      qiLogError() <<  "ERROR IN INIT SOPRANO";
+      qWarning() <<  "ERROR IN INIT SOPRANO";
     return 0;
 }
 
 Soprano::Model* Soprano::createModel( const BackendSettings& settings,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved)
+                            std::function<void(Statement)> statementAdded,
+                            std::function<void(Statement)> statementRemoved)
 {
     initSoprano();
 
     if( s_defaultBackend )
         return s_defaultBackend->createModel( settings, statementAdded, statementRemoved);
     else
-      qiLogError() <<  "ERROR IN INIT SOPRANO";
+      qWarning() <<  "ERROR IN INIT SOPRANO";
     return 0;
 }
