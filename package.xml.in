@@ -1,0 +1,4 @@
+<package name="soprano" target="linux64" version="@SOPRANO_VERSION_STRING@">
+<license>LGPLv2</license>
+  <depends buildtime="true" runtime="true" names="redland rasqal raptor2 qt5" />
+</package>
