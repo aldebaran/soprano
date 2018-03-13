@@ -22,6 +22,9 @@ include(CMakePackageConfigHelpers)
 include(CTest)
 include(CTestConfig.cmake)
 
+# To find Qt5 with qibuild
+find_package(qibuild)
+
 ##################  Soprano version  ################################
 set(SOPRANO_VERSION_MAJOR 2)
 set(SOPRANO_VERSION_MINOR 9)
