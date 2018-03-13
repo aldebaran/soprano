@@ -1,6 +1,7 @@
-<project name="soprano">
-    <maintainer email="david.houssin@softbankrobotics.com">David Houssin</maintainer>
-    <maintainer email="remy.pataillot@softbankrobotics.com">Rémy Pataillot</maintainer>
-    <maintainer email="victor.paleologue@softbankrobotics.com">Victor Paléologue</maintainer>
-    <depends buildtime="true" runtime="true" names="qt redland raptor2 rasqal"/>
+<project name="soprano" version="2.9.4">
+  <license>LGPLv2</license>
+  <maintainer email="david.houssin@softbankrobotics.com">David Houssin</maintainer>
+  <maintainer email="remy.pataillot@softbankrobotics.com">Rémy Pataillot</maintainer>
+  <maintainer email="victor.paleologue@softbankrobotics.com">Victor Paléologue</maintainer>
+  <depends buildtime="true" runtime="true" names="qt redland raptor2 rasqal"/>
 </project>
