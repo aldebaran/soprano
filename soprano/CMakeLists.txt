@@ -109,7 +109,7 @@ else()
   target_link_libraries(soprano ${QT_QTCORE_LIBRARY})
 endif()
 
-qi_use_lib(soprano qi)
+qi_use_lib(soprano qi boost)
 
 qi_stage_lib(soprano)
 
