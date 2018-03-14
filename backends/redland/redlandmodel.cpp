@@ -71,9 +71,9 @@ public:
     World *world;
     librdf_model *model;
     librdf_storage *storage;
-    boost::function<void(QList<QString>)> fOntologyModified;
-    boost::function<void(Soprano::Statement)> fStatementAdded;
-    boost::function<void(Soprano::Statement)> fStatementRemoved;
+    std::function<void(QList<QString>)> fOntologyModified;
+    std::function<void(Soprano::Statement)> fStatementAdded;
+    std::function<void(Soprano::Statement)> fStatementRemoved;
     bool negationEnabled;
 
     MultiMutex readWriteLock; // restricts multiple reads to one thread
@@ -178,7 +178,7 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
 }
 
 Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
-                                              boost::function<void(QList<QString>)> ontologyModified)
+                                              std::function<void(QList<QString>)> ontologyModified)
     : StorageModel( b )
 {
     d = new Private;
@@ -192,8 +192,8 @@ Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *mo
 }
 
 Soprano::Redland::RedlandModel::RedlandModel( const Backend* b, librdf_model *model, librdf_storage *storage, World* world,
-                                              boost::function<void(Statement)> statementAdded,
-                                              boost::function<void(Statement)> statementRemoved)
+                                              std::function<void(Statement)> statementAdded,
+                                              std::function<void(Statement)> statementRemoved)
 
     : StorageModel( b )
 {

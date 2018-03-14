@@ -72,7 +72,7 @@ Soprano::Model* Soprano::createModel( const BackendSettings& settings)
 }
 
 Soprano::Model* Soprano::createModel( const BackendSettings& settings,
-                                      boost::function<void(QList<QString>)> ontologyModified)
+                                      std::function<void(QList<QString>)> ontologyModified)
 {
     initSoprano();
 
@@ -84,8 +84,8 @@ Soprano::Model* Soprano::createModel( const BackendSettings& settings,
 }
 
 Soprano::Model* Soprano::createModel( const BackendSettings& settings,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved)
+                            std::function<void(Statement)> statementAdded,
+                            std::function<void(Statement)> statementRemoved)
 {
     initSoprano();
 

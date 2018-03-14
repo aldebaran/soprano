@@ -53,10 +53,10 @@ namespace Soprano
              */
             StorageModel* createModel( const BackendSettings& settings = BackendSettings() ) const;
             StorageModel* createModel( const BackendSettings& settings,
-                                       boost::function<void(QList<QString>)> ontologyModified) const;
+                                       std::function<void(QList<QString>)> ontologyModified) const;
             StorageModel* createModel( const BackendSettings& settings,
-                            boost::function<void(Statement)> statementAdded,
-                            boost::function<void(Statement)> statementRemoved) const;
+                            std::function<void(Statement)> statementAdded,
+                            std::function<void(Statement)> statementRemoved) const;
 
             bool deleteModelData( const BackendSettings& settings ) const;
 
