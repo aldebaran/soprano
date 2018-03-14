@@ -37,9 +37,6 @@
 #include <QtCore/QDebug>
 #include <QTime>
 
-#include <qi/log.hpp>
-
-qiLogCategory("inferencemodel");
 
 QString learningDomain = "com.aldebaran.learning";
 
@@ -480,13 +477,13 @@ int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurs
 
 //    for ( QList<BindingSet>::const_iterator it = bindings.constBegin(); it != bindings.constEnd(); ++it ) {
 //      const BindingSet& bindingTest = *it;
-//        qiLogError() << "________________";
+//        qWarning() << "________________";
 //        Q_FOREACH(QString name, bindingTest.bindingNames())
 //        {
-//          qiLogError() << name.toStdString();
-//          qiLogError() << bindingTest[name].toString().toStdString();
+//          qWarning() << name.toStdString();
+//          qWarning() << bindingTest[name].toString().toStdString();
 //        }
-//        qiLogError() << "________________";
+//        qWarning() << "________________";
 
 //      }
 
@@ -501,13 +498,13 @@ int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurs
       BindingSet mergedBinding = rule.mergeBindingStatement(binding);
       // To be sure that ?a is never equal to ?b
 
-//        qiLogError() << "________________";
+//        qWarning() << "________________";
 //      Q_FOREACH(QString name, binding.bindingNames())
 //      {
-//        qiLogError() << name.toStdString();
-//        qiLogError() << binding[name].toString().toStdString();
+//        qWarning() << name.toStdString();
+//        qWarning() << binding[name].toString().toStdString();
 //      }
-//        qiLogError() << "________________";
+//        qWarning() << "________________";
 
 
       bool sameBinding = xCheckVariablesValues(mergedBinding);
@@ -738,8 +735,8 @@ bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet bindin
 
   Q_FOREACH(QString bindingName, sortedBindingMap.keys())
   {
-//    qiLogError() << name.toStdString();
-//    qiLogError() << binding[name].toString().toStdString();
+//    qWarning() << name.toStdString();
+//    qWarning() << binding[name].toString().toStdString();
 
     qDebug() << bindingName;
     qDebug() << sortedBindingMap[bindingName];
@@ -853,7 +850,7 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
 //                                                         metadataObject,
 //                                                         sourceStatement.object(),
 //                                                         Soprano::Node::createEmptyNode());
-//  qiLogError("LIST META") << timer.elapsed();
+//  qWarning("LIST META") << timer.elapsed();
 ////  timer.restart();
 
 //  int metaCount = 0;
@@ -867,8 +864,8 @@ Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statemen
 //     return statements.current().subject();
 //    }
 //  }
-//    qiLogError("META TO CHECK") << metaCount;
-//    qiLogError("CONTAINS META") << timer.elapsed();
+//    qWarning("META TO CHECK") << metaCount;
+//    qWarning("CONTAINS META") << timer.elapsed();
 //  timer.restart();
 
 
@@ -911,7 +908,7 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
 
 
 //  time += timer.elapsed();
-//  qiLogError("META") << timer.elapsed();
+//  qWarning("META") << timer.elapsed();
 
   Soprano::Node metaDomain = Soprano::Node::createResourceNode(Vocabulary::RDF::createAldebaranRessource("metaDomain"));
 
@@ -942,7 +939,7 @@ Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const State
 //  }
 
 //  time += timer.elapsed();
-//  qiLogError("META") << timer.elapsed();
+//  qWarning("META") << timer.elapsed();
 
   return metaDataNode;
 }
@@ -1004,13 +1001,13 @@ Soprano::Statement Soprano::Inference::InferenceModel::getStatementFromMetadataN
      metadataPredicateStatement.size() < 1 ||
      metadataObjectStatement.size() < 1)
   {
-    qiLogInfo() << "This id does not correspond to any triplet";
+    qDebug() << "This id does not correspond to any triplet";
   }
   else if (metadataSubjectStatement.size() > 1 ||
            metadataPredicateStatement.size() > 1 ||
            metadataObjectStatement.size() > 1)
   {
-    qiLogInfo() << " More than 3 metadata nodes are linked to this node";
+    qDebug() << " More than 3 metadata nodes are linked to this node";
   }
 
   //Removing all incoherent triplets link to this metadaNode.

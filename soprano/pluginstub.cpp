@@ -30,10 +30,6 @@
 #include <QtCore/QLibrary>
 #include <QtCore/QDebug>
 
-#include <qi/log.hpp>
-
-qiLogCategory("pluginstub");
-
 class Soprano::PluginStub::Private : public QSharedData
 {
 public:
@@ -97,8 +93,7 @@ QObject* Soprano::PluginStub::plugin()
         d->plugin = loader.instance();
 
         if (d->plugin == 0) {
-            qDebug() << "Could not load plugin at " << loader.fileName() << ". " << loader.errorString();
-            qiLogError() << "Could not load plugin at " << loader.fileName().toStdString() << ". " << loader.errorString().toStdString();
+            qWarning() << "Could not load plugin at " << loader.fileName() << ". " << loader.errorString();
             return d->plugin;
         }
         Plugin* plugin = 0;
@@ -117,14 +112,12 @@ QObject* Soprano::PluginStub::plugin()
                 d->name = plugin->pluginName();
 
             if ( !plugin->isAvailable() ) {
-                qDebug() << "(Soprano::PluginManager) plugin " << plugin->pluginName() << "is not available.";
-                qiLogError() << "(Soprano::PluginManager) plugin " << plugin->pluginName().toStdString() << "is not available.";
+                qWarning() << "(Soprano::PluginManager) plugin " << plugin->pluginName() << "is not available.";
                 return 0;
             }
         }
         else {
-            qDebug() << "(Soprano::PluginManager) found no soprano plugin at " << loader.fileName() << "- error:" << loader.errorString();
-            qiLogError() << "(Soprano::PluginManager) found no soprano plugin at " << loader.fileName().toStdString() << "- error:" << loader.errorString().toStdString();
+            qWarning() << "(Soprano::PluginManager) found no soprano plugin at " << loader.fileName() << "- error:" << loader.errorString();
             delete d->plugin;
             d->plugin = 0;
         }

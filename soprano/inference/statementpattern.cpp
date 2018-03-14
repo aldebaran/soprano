@@ -28,10 +28,6 @@
 #include <QtCore/QStringList>
 #include <QDateTime>
 
-#include <qi/log.hpp>
-
-qiLogCategory("statementpattern");
-
 
 class Soprano::Inference::StatementPattern::Private : public QSharedData
 {
