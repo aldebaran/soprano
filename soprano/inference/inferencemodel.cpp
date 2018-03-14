@@ -32,11 +32,10 @@
 #include "nodeiterator.h"
 #include <iostream>
 
-#include <QtCore/QString>
-#include <QtCore/QUuid>
 #include <QtCore/QDebug>
-#include <QTime>
-
+#include <QtCore/QString>
+#include <QtCore/QTime>
+#include <QtCore/QUuid>
 
 QString learningDomain = "com.aldebaran.learning";
 

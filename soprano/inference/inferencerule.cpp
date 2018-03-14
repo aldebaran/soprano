@@ -24,9 +24,9 @@
 #include "nodepattern.h"
 #include "bindingset.h"
 
+#include <QtCore/QDebug>
 #include <QtCore/QString>
 #include <QtCore/QStringList>
-#include <QtCore/QDebug>
 #include <QtCore/QUuid>
 
 class Soprano::Inference::Rule::Private : public QSharedData

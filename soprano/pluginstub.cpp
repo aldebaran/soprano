@@ -25,10 +25,10 @@
 #include "parser.h"
 #include "serializer.h"
 
-#include <QtCore/QSharedData>
-#include <QtCore/QPluginLoader>
-#include <QtCore/QLibrary>
 #include <QtCore/QDebug>
+#include <QtCore/QLibrary>
+#include <QtCore/QPluginLoader>
+#include <QtCore/QSharedData>
 
 class Soprano::PluginStub::Private : public QSharedData
 {

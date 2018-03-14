@@ -28,8 +28,8 @@
 
 #include <QtCore/QDebug>
 #include <QtCore/QList>
+#include <QtCore/QPointer>
 
-#include <QPointer>
 
 class Soprano::FilterModel::Private
 {
