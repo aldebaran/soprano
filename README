@@ -34,3 +34,12 @@ Packaging for QiToolchain
 +++++++++++++++++++++++++
 
 Just run `qibuild package -c <config>`. It produces a `.pkg` file that you can put in any toolchain.
+
+Updating toolchain at the company
++++++++++++++++++++++++++++++++++
+
+To make a toolchain package at SoftBank Robotics Europe:
+
+* Do an merge request in this repository.
+* Run [this job](http://jenkins-dev.aldebaran.lan:8080/view/dialog/job/release-2.9_make-tc-package_soprano_all/)
+* Reference the artefacts of the job (one for each target platform) in [the toolchain's repository](https://gitlab.aldebaran.lan/qi/toolchains), and do a merge request there.
