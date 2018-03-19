@@ -29,3 +29,8 @@ Soprano has the following features:
   on top of an RDF storage.
 
 See INSTALL for installation instructions.
+
+Packaging for QiToolchain
++++++++++++++++++++++++++
+
+Just run `qibuild package -c <config>`. It produces a `.pkg` file that you can put in any toolchain.
