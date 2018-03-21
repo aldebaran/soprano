@@ -22,8 +22,8 @@
 #ifndef _SOPRANO_SIMPLE_STATEMENT_ITERATOR_H_
 #define _SOPRANO_SIMPLE_STATEMENT_ITERATOR_H_
 
-#include "statementiterator.h"
-#include "soprano_export.h"
+#include "../statementiterator.h"
+#include "../soprano_export.h"
 
 #include <QtCore/QList>
 

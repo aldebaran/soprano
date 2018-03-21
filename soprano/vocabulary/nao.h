@@ -22,7 +22,7 @@
 #define _SOPRANO_NAO_H_
 
 #include <QtCore/QUrl>
-#include "soprano_export.h"
+#include "../soprano_export.h"
 
 namespace Soprano {
     namespace Vocabulary {

@@ -20,7 +20,65 @@ configure_file(soprano-config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/soprano-config
 
 add_definitions(-DUSING_SOPRANO_NRLMODEL_UNSTABLE_API)
 
+set(soprano_HDRS
+  backend.h
+  bindingset.h
+  datastream.h
+  error.h
+  filtermodel.h
+  global.h
+  graph.h
+  inference/inferencemodel.h
+  inference/inferencerule.h
+  inference/inferenceruleparser.h
+  inference/inferenceruleset.h
+  inference/nodepattern.h
+  inference/sil.h
+  inference/statementpattern.h
+  iterator.h
+  iteratorbackend.h
+  languagetag.h
+  literalvalue.h
+  locator.h
+  model.h
+  node.h
+  nodeiterator.h
+  nrlmodel.h
+  parser.h
+  plugin.h
+  pluginmanager.h
+  queryresultiterator.h
+  queryresultiteratorbackend.h
+  rdfschemamodel.h
+  serializer.h
+  soprano.h
+  soprano_export.h
+  sopranomacros.h
+  sopranotypes.h
+  statement.h
+  statementiterator.h
+  storagemodel.h
+  util/asyncmodel.h
+  util/asyncquery.h
+  util/asyncresult.h
+  util/dummymodel.h
+  util/mutexmodel.h
+  util/readonlymodel.h
+  util/signalcachemodel.h
+  util/simplenodeiterator.h
+  util/simplestatementiterator.h
+  vocabulary.h
+  vocabulary/nao.h
+  vocabulary/nrl.h
+  vocabulary/owl.h
+  vocabulary/rdf.h
+  vocabulary/rdfs.h
+  vocabulary/xesam.h
+  vocabulary/xsd.h
+)
+
 set(soprano_SRCS
+  ${soprano_HDRS}
   queryresultiterator.cpp
   queryresultiterator.h
   queryresultiteratorbackend.cpp
@@ -115,3 +173,9 @@ qi_create_lib(soprano
   )
 
 qi_stage_lib(soprano)
+
+qi_install_header(
+  ${soprano_HDRS}
+  SUBFOLDER soprano
+  KEEP_RELATIVE_PATHS
+)

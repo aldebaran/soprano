@@ -22,9 +22,9 @@
 #ifndef _SOPRANO_INFERENCE_MODEL_H_
 #define _SOPRANO_INFERENCE_MODEL_H_
 
-#include "filtermodel.h"
-#include "soprano_export.h"
-#include "boost/function.hpp"
+#include "../filtermodel.h"
+#include "../soprano_export.h"
+#include <boost/function.hpp>
 
 class QUrl;
 

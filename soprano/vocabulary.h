@@ -19,9 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#include "rdf.h"
-#include "rdfs.h"
-#include "xsd.h"
-#include "nrl.h"
-#include "nao.h"
-#include "xesam.h"
+#include "vocabulary/rdf.h"
+#include "vocabulary/rdfs.h"
+#include "vocabulary/xsd.h"
+#include "vocabulary/nrl.h"
+#include "vocabulary/nao.h"
+#include "vocabulary/xesam.h"

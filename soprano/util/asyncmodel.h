@@ -22,10 +22,10 @@
 #ifndef _SOPRANO_ASYNC_MODEL_H_
 #define _SOPRANO_ASYNC_MODEL_H_
 
-#include "filtermodel.h"
+#include "../filtermodel.h"
 #include "asyncresult.h" // backwards comp when AsyncResult was defined in this header
 
-#include "soprano_export.h"
+#include "../soprano_export.h"
 
 
 namespace Soprano {

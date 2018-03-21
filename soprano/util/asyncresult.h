@@ -25,8 +25,8 @@
 #include <QtCore/QObject>
 #include <QtCore/QVariant>
 
-#include "error.h"
-#include "soprano_export.h"
+#include "../error.h"
+#include "../soprano_export.h"
 
 
 namespace Soprano {

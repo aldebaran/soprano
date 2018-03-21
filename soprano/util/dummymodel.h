@@ -22,8 +22,8 @@
 #ifndef SOPRANO_DUMMY_MODEL_H
 #define SOPRANO_DUMMY_MODEL_H
 
-#include "soprano_export.h"
-#include "model.h"
+#include "../soprano_export.h"
+#include "../model.h"
 
 
 namespace Soprano {

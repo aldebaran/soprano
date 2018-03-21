@@ -22,8 +22,8 @@
 #ifndef _SOPRANO_MUTEX_MODEL_H_
 #define _SOPRANO_MUTEX_MODEL_H_
 
-#include "filtermodel.h"
-#include "soprano_export.h"
+#include "../filtermodel.h"
+#include "../soprano_export.h"
 
 namespace Soprano {
     namespace Util {
