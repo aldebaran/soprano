@@ -297,17 +297,18 @@ void Soprano::PluginManager::loadAllPlugins()
 //          QDir pluginDir(QString(qi::Application::realProgram()).split("/bin")[0]+ "/share/soprano");
 //        QString pluginFile = QString::fromUtf8(qi::path::findData("dialog", "redlandbackend.desktop").c_str());
         QString pluginFile = QString::fromUtf8(qi::path::findData("dialog", "redlandbackend.desktop").c_str());
+
 //        QString pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-linux64/sdk/share/dialog/redlandbackend.desktop";
         QString test = QString::fromStdString(qi::path::userWritableDataPath("dialog", ""));
 
 //    QString pluginFile = "/home/nao/foo/share/dialog/redlandbackend.desktop";
 
+//    pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledgemodule/soprano/build-linux64/sdk/share/dialog/redlandbackend.desktop";
+
     qDebug() << "+++++++++++++++++++++++++++++";
     qDebug() << test;
     qDebug() << pluginFile;
     qDebug() << "_____________________________";
-
-//    pluginFile = "/home/rpataillot/work/masterDialog/dialog/knowledge/soprano/build-desktop-knowledge/sdk/share/dialog/redlandbackend.desktop";
 
         loadPlugin(pluginFile);
 

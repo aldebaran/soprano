@@ -82,3 +82,17 @@ Soprano::Model* Soprano::createModel( const BackendSettings& settings,
       qiLogError() <<  "ERROR IN INIT SOPRANO";
     return 0;
 }
+
+Soprano::Model* Soprano::createModel( const BackendSettings& settings,
+                            boost::function<void(Statement)> statementAdded,
+                            boost::function<void(Statement)> statementRemoved)
+{
+    initSoprano();
+
+    if( s_defaultBackend )
+        return s_defaultBackend->createModel( settings, statementAdded, statementRemoved);
+    else
+      qiLogError() <<  "ERROR IN INIT SOPRANO";
+    return 0;
+}
+

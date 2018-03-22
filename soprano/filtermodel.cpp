@@ -29,6 +29,7 @@
 #include <QtCore/QList>
 
 #include <qi/log.hpp>
+#include <QPointer>
 
 qiLogCategory("filtermodel");
 
@@ -39,13 +40,14 @@ public:
         : parent( 0 ) {
     }
 
-    Model* parent;
+//    Model* parent;
+    QPointer<Model> parent;
 };
 
 
 Soprano::FilterModel::FilterModel()
     : Model(),
-      d( new Private() )
+      d(new Private() )
 {
 }
 
@@ -64,7 +66,7 @@ Soprano::FilterModel::FilterModel( Model* parent )
 
 Soprano::FilterModel::~FilterModel()
 {
-    delete d;
+  delete d;
 }
 
 
@@ -105,7 +107,7 @@ Soprano::Error::ErrorCode Soprano::FilterModel::addStatement( const Statement &s
 //   Prevent triplet to be added several times
   if(containsAnyStatement(statement))
   {
-    return Soprano::Error::ErrorNone;
+    return Soprano::Error::ErrorAlreadyExist;
   }
 
     Q_ASSERT( d->parent );
@@ -158,8 +160,16 @@ bool Soprano::FilterModel::containsAnyStatement( const Statement &statement ) co
 {
     Q_ASSERT( d->parent );
     bool b = d->parent->containsAnyStatement( statement );
-    setError( d->parent->lastError() );
-    return b;
+//    setError( d->parent->lastError() );
+//    return b;
+
+    if(!d->parent.isNull() && !d->parent.data()->isEmpty())
+    {
+      d->parent->lastError();
+      return b;
+    }
+    return Error::ErrorCode::ErrorUnknown;
+
 }
 
 
@@ -204,10 +214,15 @@ Soprano::StatementIterator Soprano::FilterModel::listStatements( const Node& sub
 
 Soprano::Error::ErrorCode Soprano::FilterModel::removeStatement( const Statement &statement )
 {
-    Q_ASSERT( d->parent );
-    Error::ErrorCode c = d->parent->removeStatement( statement );
-    setError( d->parent->lastError() );
-    return c;
+  Q_ASSERT( d->parent );
+  Error::ErrorCode c = d->parent->removeStatement( statement );
+
+      if(!d->parent.isNull() && !d->parent.data()->isEmpty())
+      {
+        d->parent->lastError();
+        return c;
+       }
+  return Error::ErrorCode::ErrorUnknown;
 }
 
 

@@ -241,7 +241,8 @@ QUrl Soprano::Node::dataType() const
 
 QString Soprano::Node::language() const
 {
-    return literal().language().toString();
+//Thers is a bug with redland apparently: en_US is changed to en-us
+    return literal().language().toString().replace("-", "_");
 }
 
 QString Soprano::Node::toString() const

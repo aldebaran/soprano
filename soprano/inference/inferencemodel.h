@@ -78,6 +78,10 @@ namespace Soprano {
             InferenceModel( Model* parent );
             InferenceModel( Model* parent,
                             boost::function<void(QList<QString>)> ontologyModified);
+            InferenceModel( Model* parent,
+                            boost::function<void(Statement)> statementAdded,
+                            boost::function<void(Statement)> statementRemoved);
+
 
             ~InferenceModel();
 

@@ -7,6 +7,8 @@ find_package(qibuild)
 include(qibuild/modules/qt5-tools)
 include_directories(".")
 
+add_definitions(-DQT_COMPILING_QSTRING_COMPAT_CPP)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 option(QT5_BUILD "Build Soprano using the Qt5 framework" TRUE)

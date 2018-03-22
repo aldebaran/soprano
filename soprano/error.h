@@ -45,7 +45,8 @@ namespace Soprano {
             ErrorParsingFailed = 0x3,    /**< Parsing a query or an RDF serialization failed. */
             ErrorPermissionDenied = 0x4, /**< Permission is denied. \since 2.1 */
             ErrorTimeout = 0x5,          /**< The command timed out. \since 2.7.4 */
-            ErrorNegation = 0x6,          /**< The command timed out. \since 2.7.4 */
+            ErrorNegation = 0x6,
+            ErrorAlreadyExist = 0x7,
             ErrorUnknown = 0x1000        /**< An unknown error occurred. */
 
         };
