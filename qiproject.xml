@@ -1,4 +1,4 @@
-<project name="soprano" version="2.9.4">
+<project name="soprano-sbre" version="2.9.4">
     <license>LGPLv2</license>
     <maintainer email="david.houssin@softbankrobotics.com">David Houssin</maintainer>
     <maintainer email="remy.pataillot@softbankrobotics.com">Rémy Pataillot</maintainer>
