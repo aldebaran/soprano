@@ -32,7 +32,13 @@
 #include "redlandnodeiteratorbackend.h"
 #include "multimutex.h"
 
+#include "vocabulary/rdf.h"
+
 #include <QtCore/QDebug>
+
+#include <qi/log.hpp>
+
+qiLogCategory("redlandmodel");
 
 
 namespace {
@@ -206,6 +212,41 @@ librdf_model *Soprano::Redland::RedlandModel::redlandModel() const
 
 Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const Statement &statement )
 {
+//  QString query = Vocabulary::RDF::getMetadataQuery(statement.subject().toString(),
+//                                                    statement.object().toString(),
+//                                                    statement.predicate().toString());
+
+
+//  QString query =  "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
+
+  QString query =  "PREFIX al:<http://aldebaran.org/learning#> \n"
+      "select ?sourceStatement where { graph <http://soprano.org/sil#InferenceMetaData> {"
+      "<" + statement.subject().toString() + ">" + " al:metadata ?metadata . \n"
+      "<" + statement.predicate().toString() + ">" + " al:metadata ?metadata . \n"
+      "<" + statement.object().toString() + ">" + " al:metadata ?metadata . \n"
+      "?sourceStatement al:isDisabled ?metadata .} }";
+
+
+  Soprano::QueryResultIterator it = executeQuery(query,
+                                                 Soprano::Query::QueryLanguageSparql);
+
+  QStringList results;
+
+  Q_FOREACH(Soprano::BindingSet bs, it.allBindings())
+  {
+    Q_FOREACH(QString bindingName, bs.bindingNames())
+    {
+      if(bs.value(bindingName).toString() != "")
+      {
+        results.append(bs.value(bindingName).toString());
+      }
+    }
+  }
+
+  if(!results.empty())
+    return Error::ErrorNegation;
+
+
     if ( !statement.isValid() ) {
         setError( "Cannot add invalid statement", Error::ErrorInvalidArgument );
         return Error::ErrorInvalidArgument;

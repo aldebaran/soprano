@@ -77,6 +77,7 @@ namespace Soprano {
              */
             QList<StatementPattern> preconditions() const;
 
+
             /**
              * Add a precondition
              */
@@ -93,6 +94,16 @@ namespace Soprano {
              * Set the effect of the rule.
              */
             void setEffect( const StatementPattern& );
+
+
+            QString effectStyle() const;
+
+            void setEffectStyle(const QString& effectStyle);
+
+            QString condition() const;
+
+            void setCondition(const QString& condition);
+
 
             /**
              * Check if a statement matches any of the statement patterns
@@ -172,13 +183,21 @@ namespace Soprano {
              */
             bool isValid() const;
 
+            void clearBindingHistory() const;
+
+            void setBindingAlreadyUsed(bool alreadyUsed) const;
+
+            bool isBindingAlreadyUsed() const;
+
+            BindingSet mergeBindingStatement( const BindingSet& bindings ) const;
+
         private:
             /**
              * Merges in binding information from the bindingStatement by matching it to the preconditions.
              * This is necessary for optimized queries.
              */
-            BindingSet mergeBindingStatement( const BindingSet& bindings ) const;
             Statement bindStatementPattern( const StatementPattern& pattern, const BindingSet& bindings ) const;
+            Statement bindStatementPattern2( const StatementPattern& pattern, const BindingSet& bindings ) const;
 
             class Private;
             QSharedDataPointer<Private> d;

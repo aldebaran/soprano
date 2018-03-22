@@ -1,10 +1,10 @@
 project(soprano_redland)
 
-include_directories(
+set( CMAKE_VERBOSE_MAKEFILE ON )
+
+include_directories(HEADERS
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
-  ${REDLAND_INCLUDE_DIR}
-  ${RASQAL_INCLUDE_DIR}
   ${RAPTOR_INCLUDE_DIR}
   )
 
@@ -17,44 +17,43 @@ if(NOT WIN32)
   add_definitions(-fPIC)
 endif()
 
-if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR_SERIALIZER)
-  set(redland_core_SRC
-    redlandworld.cpp
-    redlandstatementiterator.cpp
-    redlandqueryresult.cpp
-    redlandmodel.cpp
-    redlandnodeiteratorbackend.cpp
-    multimutex.cpp
-    )
+#if(BUILD_REDLAND_BACKEND OR BUILD_RAPTOR_SERIALIZER)
+set(redland_core_SRC
+  redlandworld.cpp
+  redlandstatementiterator.cpp
+  redlandqueryresult.cpp
+  redlandmodel.cpp
+  redlandnodeiteratorbackend.cpp
+  multimutex.cpp
+  )
 
-  add_library(soprano_redlandcore STATIC ${redland_core_SRC})
+qi_create_lib(soprano_redlandcore STATIC ${redland_core_SRC})
 
-  target_link_libraries(soprano_redlandcore soprano ${REDLAND_LIBRARIES})
-endif()
+#qi_use_lib(soprano_redlandcore RAPTOR soprano ${REDLAND_LIBRARIES})
+#qi_use_lib(soprano_redlandcore soprano ${REDLAND_LIBRARIES})
+qi_use_lib(soprano_redlandcore soprano REDLAND)
 
-if(BUILD_REDLAND_BACKEND)
-  if (RASQAL_VERSION VERSION_LESS "0.9.15")
-    message(STATUS "WARNING! - SPARQL ASK queries are broken in rasqal <= 0.9.14. It is recommended to update to at least version 0.9.15.")
-  endif()
+qi_stage_lib(soprano_redlandcore)
 
-  set(redland_backend_SRC
-    redlandbackend.cpp
-    )
+set(redland_backend_SRC
+  redlandbackend.cpp)
 
-  add_library(soprano_redlandbackend MODULE ${redland_backend_SRC})
+#CROSS-COMPILATION
+qi_create_lib(soprano_redlandbackend
+  SRC     ${HEADERS}
+  ${redland_backend_SRC}
+  DEPENDS QI QT5_CORE RAPTOR REDLAND soprano_redlandcore
+  SHARED
+  )
 
-  target_link_libraries(soprano_redlandbackend soprano_redlandcore)
+configure_file(redlandbackend.desktop.cmake ${QI_SDK_DIR}/${QI_SDK_SHARE}/dialog/redlandbackend.desktop)
 
-  set_target_properties(soprano_redlandbackend PROPERTIES
-    DEFINE_SYMBOL MAKE_REDLANDBACKEND_LIB
-    )
+qi_install_data(
+  ${QI_SDK_DIR}/${QI_SDK_SHARE}/dialog/redlandbackend.desktop
+  SUBFOLDER "dialog"
+  )
 
-  install(TARGETS soprano_redlandbackend ${PLUGIN_INSTALL_DIR})
+qi_stage_lib(soprano_redlandbackend)
 
-  configure_file(redlandbackend.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/redlandbackend.desktop)
+#endif()
 
-  install(FILES
-    ${CMAKE_CURRENT_BINARY_DIR}/redlandbackend.desktop
-    DESTINATION ${DATA_INSTALL_DIR}/soprano/plugins
-    )
-endif()

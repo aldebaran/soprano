@@ -13,15 +13,24 @@ set(raptor_serializer_SRC
   raptorserializer.cpp
 )
 
-add_library(soprano_raptorserializer MODULE ${raptor_serializer_SRC})
+#add_library(soprano_raptorserializer MODULE ${raptor_serializer_SRC})
+#
+#target_link_libraries(soprano_raptorserializer soprano ${RAPTOR_LIBRARIES})
+#
+#set_target_properties(soprano_raptorserializer PROPERTIES
+#  DEFINE_SYMBOL MAKE_RAPTORSERIALIZER_LIB
+#)
+#
+#install(TARGETS soprano_raptorserializer ${PLUGIN_INSTALL_DIR})
 
-target_link_libraries(soprano_raptorserializer soprano ${RAPTOR_LIBRARIES})
+qi_create_lib(soprano_raptor_serializer
+  SRC ${HEADERS}
+  ${raptor_serializer_SRC}
+  DEPENDS QT5_CORE RAPTOR
+  SHARED
+  )
 
-set_target_properties(soprano_raptorserializer PROPERTIES
-  DEFINE_SYMBOL MAKE_RAPTORSERIALIZER_LIB
-)
-
-install(TARGETS soprano_raptorserializer ${PLUGIN_INSTALL_DIR})
+qi_stage_lib(soprano_raptor_serializer)
 
 configure_file(raptorserializer.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/raptorserializer.desktop)
 

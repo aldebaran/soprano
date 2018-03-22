@@ -130,8 +130,9 @@ QStringList Soprano::libDirs()
     paths << getWinPrefix() + QLatin1String( "/bin" );
     paths << getWinPrefix() + QLatin1String( SOPRANO_FULL_LIB_DIR );
 #else
-    paths << QLatin1String( "/usr/" SOPRANO_LIB_DIR );
-    paths << QLatin1String( "/usr/local/" SOPRANO_LIB_DIR );
+    paths << QLatin1String( "/usr/"SOPRANO_LIB_DIR );
+    paths << QLatin1String( "/usr/local/"SOPRANO_LIB_DIR );
+    paths << QLatin1String( "/usr/share/"SOPRANO_LIB_DIR );
     paths += Soprano::envDirList( "LD_LIBRARY_PATH" );
 #endif
     return paths;

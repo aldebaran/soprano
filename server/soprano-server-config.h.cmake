@@ -1,2 +1,0 @@
-#cmakedefine BUILD_CLUCENE_INDEX
-#cmakedefine BUILD_DBUS_SUPPORT

@@ -19,9 +19,9 @@
  * Boston, MA 02110-1301, USA.
  */
 
-#define USING_SOPRANO_NRLMODEL_UNSTABLE_API
+//#define USING_SOPRANO_NRLMODEL_UNSTABLE_API
 #include "nrlmodel.h"
-#undef USING_SOPRANO_NRLMODEL_UNSTABLE_API
+//#undef USING_SOPRANO_NRLMODEL_UNSTABLE_API
 #include "error.h"
 #include "vocabulary/nrl.h"
 #include "vocabulary/nao.h"
@@ -343,4 +343,4 @@ Soprano::Error::ErrorCode Soprano::NRLModel::removeAllStatements( const Statemen
     }
 }
 
-#include "moc_nrlmodel.cpp"
+//#include "moc_nrlmodel.cpp"

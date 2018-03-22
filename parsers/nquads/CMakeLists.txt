@@ -1,6 +1,6 @@
 project(nquads_parser)
 
-include_directories(
+include_directories(HEADERS
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
 )
@@ -8,11 +8,14 @@ include_directories(
 set(nquadparser_SRC
   nquadparser.cpp)
 
-add_library(soprano_nquadparser MODULE ${nquadparser_SRC})
+qi_create_lib(nquads_parser
+  SRC ${HEADERS}
+  ${nquadparser_SRC}
+  DEPENDS QT5_CORE
+  SHARED
+  )
 
-target_link_libraries(soprano_nquadparser soprano)
-
-install(TARGETS soprano_nquadparser ${PLUGIN_INSTALL_DIR})
+qi_stage_lib(nquads_parser)
 
 configure_file(nquadparser.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/nquadparser.desktop)
 

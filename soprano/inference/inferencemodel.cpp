@@ -30,10 +30,15 @@
 #include "literalvalue.h"
 #include "bindingset.h"
 #include "nodeiterator.h"
+#include <iostream>
 
 #include <QtCore/QString>
 #include <QtCore/QUuid>
 #include <QtCore/QDebug>
+
+#include <qi/log.hpp>
+
+qiLogCategory("inferencemodel");
 
 // FIXME: add error handling!
 
@@ -48,6 +53,21 @@ static Soprano::Node compressStatement( const Soprano::Statement& statement )
         s.append( '<' + statement.object().toString() + '>' );
     }
     return Soprano::LiteralValue( s );
+}
+
+
+static Soprano::Statement uncompressStatement( const Soprano::Node& compressedStatement )
+{
+  Soprano::Statement uncompressedStatement;
+  QList<QString> stringNodes = compressedStatement.toString().remove(">").split("<");
+
+  if(stringNodes.size() == 3)
+  {
+    uncompressedStatement.setSubject(Soprano::Node(stringNodes[0]));
+    uncompressedStatement.setPredicate(Soprano::Node(stringNodes[1]));
+    uncompressedStatement.setObject(Soprano::Node(stringNodes[2]));
+  }
+  return uncompressedStatement;
 }
 
 
@@ -74,6 +94,7 @@ public:
     QList<Rule> rules;
     bool compressedStatements;
     bool optimizedQueries;
+    QMap <QString, QString> bindingMapHistory;
 };
 
 
@@ -116,10 +137,16 @@ void Soprano::Inference::InferenceModel::setRules( const QList<Rule>& rules )
 }
 
 
+QList<Soprano::Inference::Rule> Soprano::Inference::InferenceModel::getRules()
+{
+    return d->rules;
+}
+
+
 Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::addStatement( const Statement& statement )
 {
     Error::ErrorCode error = FilterModel::addStatement( statement );
-    if ( error == Error::ErrorNone ) {
+    if ( error == Error::ErrorNone || error==Error::ErrorNegation) {
         // FIXME: error handling for the inference itself
         if( inferStatement( statement, true ) ) {
             emit statementsAdded();
@@ -134,13 +161,17 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeAllStatement
     // FIXME: should we check if the statement could match some rule at all and if not do nothing?
 
     // are there any rules that handle objects? Probably not.
+      QTextStream s( stdout );
     if ( !statement.object().isLiteral() ) {
         // we need to list statements first and then iterate over all that will be removed
         // since we change the model we also have to cache the statements
+
         QList<Statement> removedStatements = parentModel()->listStatements( statement ).allStatements();
         for ( QList<Statement>::const_iterator it2 = removedStatements.constBegin();
               it2 != removedStatements.constEnd(); ++it2 ) {
+
             Error::ErrorCode c = removeStatement( *it2 );
+
             if ( c != Error::ErrorNone ) {
                 return c;
             }
@@ -158,9 +189,67 @@ Soprano::Error::ErrorCode Soprano::Inference::InferenceModel::removeStatement( c
         return c;
     }
 
+
+
+    if(!getMetadataNode(statement).isEmpty())
+    {
+
+      Soprano::StatementIterator disabledStatements = parentModel()->listStatements(getMetadataNode(statement),
+                                                                                    Vocabulary::RDF::isDisabled(),
+                                                                                    Soprano::Node::createEmptyNode(),
+                                                                                    Vocabulary::SIL::InferenceMetaData());
+
+
+      QList<Soprano::Node> disablingMetadataNodes;
+      QList<Soprano::Node> disabledMetadataNodes;
+
+      while (disabledStatements.next())
+      {
+        Soprano::StatementIterator disablingStatements =  parentModel()->listStatements(Soprano::Node::createEmptyNode(),
+                                                                                        Vocabulary::RDF::isDisabled(),
+                                                                                        disabledStatements.current().object(),
+                                                                                        Vocabulary::SIL::InferenceMetaData());
+
+        QList<Statement> allDisablingStatements = disablingStatements.allStatements();
+
+        if(allDisablingStatements.size() == 1)
+        {
+          disablingMetadataNodes.append(allDisablingStatements.first().subject());
+        }
+      }
+
+      Q_FOREACH(Soprano::Node disablingMetadataNode, disablingMetadataNodes)
+      {
+        cleanMetadata(disablingMetadataNode);
+
+//WARNING Only working when FilterModel is used, not working with parentModel->removeStatement
+        FilterModel::removeStatements(parentModel()->listStatements(disablingMetadataNode,
+                                                                    Vocabulary::RDF::isDisabled(),
+                                                                    Soprano::Node::createEmptyNode(),
+                                                                    Vocabulary::SIL::InferenceMetaData()).allStatements());
+
+
+      }
+    }
+
     QList<Node> graphs = inferedGraphsForStatement( statement );
     for ( QList<Node>::const_iterator it = graphs.constBegin(); it != graphs.constEnd(); ++it ) {
         Node graph = *it;
+
+//        Soprano::StatementIterator statementsToAdd = parentModel()->listStatements(graph,
+//                                                                                   Vocabulary::RDF::Statement(),
+//                                                                                   Soprano::Node::createEmptyNode(),
+//                                                                                   Vocabulary::SIL::InferenceMetaData());
+//        while (statementsToAdd.next())
+//        {
+
+//      QTextStream s( stdout );
+//      s << uncompressStatement(statementsToAdd.current().object()).subject().toString() << endl;
+//      s << uncompressStatement(statementsToAdd.current().object()).predicate().toString() << endl;
+//      s << uncompressStatement(statementsToAdd.current().object()).object().toString() << endl;
+//          Soprano::Statement statementToAdd= uncompressStatement(statementsToAdd.current().object());
+//          parentModel()->addStatement(statementToAdd);
+//        }
 
         // Step 1: remove the source statements of the removed graph
         if ( !d->compressedStatements ) {
@@ -315,9 +404,13 @@ int Soprano::Inference::InferenceModel::inferStatement( const Statement& stateme
     int cnt = 0;
     for ( QList<Rule>::iterator it = d->rules.begin();
           it != d->rules.end(); ++it ) {
+
         Rule& rule = *it;
         if( rule.match( statement) ) {
             rule.bindToStatement( statement );
+            qiLogError() << "Subject " << statement.subject().toString().toStdString();
+            qiLogError() << "Predicate " << statement.predicate().toString().toStdString();
+            qiLogError() << "Object " << statement.object().toString().toStdString();
             cnt += inferRule( rule, recurse );
         }
     }
@@ -325,91 +418,316 @@ int Soprano::Inference::InferenceModel::inferStatement( const Statement& stateme
 }
 
 
+int recursiveCounter = 0;
+
 int Soprano::Inference::InferenceModel::inferRule( const Rule& rule, bool recurse )
 {
-    QString q = rule.createSparqlQuery( d->optimizedQueries );
-    if ( q.isEmpty() ) {
+  bool inferedStatementFound = false;
+  recursiveCounter ++;
+  rule.setBindingAlreadyUsed(false);
+  rule.clearBindingHistory();
+  qDebug() << "COUNTER " << recursiveCounter;
+      QTextStream s( stdout );
+  QString q = rule.createSparqlQuery( d->optimizedQueries );
+  if ( q.isEmpty() ) {
+    return 0;
+  }
+  else {
+//             qDebug() << "Applying rule:" << rule;
+             qDebug() << "Rule query:" << q;
+
+    int inferedStatementsCount = 0;
+
+    // remember the infered statements to recurse later on
+    QList<Statement> inferedStatements;
+
+    // cache the bindings since we work recursively and Soprano would block in the addStatement calls otherwise
+    QList<BindingSet> bindings = parentModel()->executeQuery( q, Query::QueryLanguageSparql ).allBindings();
+
+//    for ( QList<BindingSet>::const_iterator it = bindings.constBegin(); it != bindings.constEnd(); ++it ) {
+//      const BindingSet& bindingTest = *it;
+//        qiLogError() << "________________";
+//        Q_FOREACH(QString name, bindingTest.bindingNames())
+//        {
+//          qiLogError() << name.toStdString();
+//          qiLogError() << bindingTest[name].toString().toStdString();
+//        }
+//        qiLogError() << "________________";
+
+//      }
+
+
+
+    for ( QList<BindingSet>::const_iterator it = bindings.constBegin(); it != bindings.constEnd(); ++it ) {
+      const BindingSet& binding = *it;
+      if(inferedStatementFound)
         return 0;
-    }
-    else {
-//         qDebug() << "Applying rule:" << rule;
-//         qDebug() << "Rule query:" << q;
 
-        int inferedStatementsCount = 0;
+//      rule.bindPreconditions( binding );
+      BindingSet mergedBinding = rule.mergeBindingStatement(binding);
+      // To be sure that ?a is never equal to ?b
 
-        // remember the infered statements to recurse later on
-        QList<Statement> inferedStatements;
+//        qiLogError() << "________________";
+//      Q_FOREACH(QString name, binding.bindingNames())
+//      {
+//        qiLogError() << name.toStdString();
+//        qiLogError() << binding[name].toString().toStdString();
+//      }
+//        qiLogError() << "________________";
 
-        // cache the bindings since we work recursively and Soprano would block in the addStatement calls otherwise
-        QList<BindingSet> bindings = parentModel()->executeQuery( q, Query::QueryLanguageSparql ).allBindings();
-        for ( QList<BindingSet>::const_iterator it = bindings.constBegin(); it != bindings.constEnd(); ++it ) {
-            const BindingSet& binding = *it;
 
-//            qDebug() << "Queried rule bindings for rule" << rule << "with rule query" << q << ":" << binding;
+      bool sameBinding = xCheckVariablesValues(mergedBinding);
 
-            Statement inferedStatement = rule.bindEffect( binding );
+      if(sameBinding)
+      {
+        qiLogError() << "Same binding not infering";
+        continue;
+      }
+//      else
+//      {
+//        inferedStatementFound = true;
+//      }
 
-            // we only add infered statements if they are not already present (in any named graph, aka. context)
-            if ( inferedStatement.isValid() ) {
-                if( !parentModel()->containsAnyStatement( inferedStatement ) ) {
-                    ++inferedStatementsCount;
+      //            qDebug() << "Queried rule bindings for rule" << rule << "with rule query" << q << ":" << binding;
 
-                    QUrl inferenceGraphUrl = createRandomUri();
+      Statement inferedStatement = rule.bindEffect( binding );
 
-                    // write the actual infered statement
-                    inferedStatement.setContext( inferenceGraphUrl );
-                    parentModel()->addStatement( inferedStatement );
+      qDebug() << "======== INFERED STATEMENTS =========";
+      qDebug() << inferedStatement.subject().toString();
+      qDebug() << inferedStatement.predicate().toString();
+      qDebug() << inferedStatement.object().toString();
+      qDebug() << "=====================================";
 
-                    // write the metadata about the new inference graph into the inference metadata graph
-                    // type of the new graph is sil:InferenceGraph
-                    parentModel()->addStatement( Statement( inferenceGraphUrl,
-                                                            Vocabulary::RDF::type(),
-                                                            Vocabulary::SIL::InferenceGraph(),
-                                                            Vocabulary::SIL::InferenceMetaData() ) );
-
-                    // add sourceStatements
-                    QList<Statement> sourceStatements = rule.bindPreconditions( binding );
-                    for ( QList<Statement>::const_iterator sit = sourceStatements.constBegin();
-                          sit != sourceStatements.constEnd(); ++sit ) {
-                        const Statement& sourceStatement = *sit;
-
-                        if ( d->compressedStatements ) {
-                            // remember the statement through a checksum (well, not really a checksum for now ;)
-                            parentModel()->addStatement( Statement( inferenceGraphUrl,
-                                                                    Vocabulary::SIL::sourceStatement(),
-                                                                    compressStatement( sourceStatement ),
-                                                                    Vocabulary::SIL::InferenceMetaData() ) );
-                        }
-                        else {
-                            // remember the source statement as a source for our graph
-                            parentModel()->addStatement( Statement( inferenceGraphUrl,
-                                                                    Vocabulary::SIL::sourceStatement(),
-                                                                    storeUncompressedSourceStatement( sourceStatement ),
-                                                                    Vocabulary::SIL::InferenceMetaData() ) );
-                        }
-                    }
-
-                    // remember the infered statements to recurse later on
-                    if ( recurse ) {
-                        inferedStatements << inferedStatement;
-                    }
-                }
-            }
-//             else {
-//                 qDebug() << "Inferred statement is invalid (this is no error):" << inferedStatement;
-//             }
+      // we only add infered statements if they are not already present (in any named graph, aka. context)
+      if ( inferedStatement.isValid() ) {
+        if(!rule.condition().isEmpty() && !parentModel()->executeQuery( rule.condition(), Query::QueryLanguageSparql ).allBindings().size())
+        {
+          qDebug() << parentModel()->executeQuery( rule.condition(), Query::QueryLanguageSparql ).allBindings().size();
+          qDebug() << "CONDITION NOT FULFILLED";
+          qDebug() << rule.condition();
+          return 0;
         }
+        if( !parentModel()->containsAnyStatement( inferedStatement ) || rule.effectStyle() == "negation")
+        {
+          ++inferedStatementsCount;
 
-        // We only recurse after finishing the loop since this will reset the bound statement
-        // in the rule which leads to a lot of confusion
-        if ( recurse && inferedStatementsCount ) {
-            foreach( const Statement& s, inferedStatements ) {
-                inferedStatementsCount += inferStatement( s, true );
+          QUrl inferenceGraphUrl = createRandomUri();
+
+          // write the actual infered statement
+          inferedStatement.setContext( inferenceGraphUrl );
+          if(rule.effectStyle() == "update")
+          {
+            Soprano::StatementIterator matchingStatements = parentModel()->listStatements(inferedStatement.subject(),
+                                                                                          inferedStatement.predicate(),
+                                                                                          Soprano::Node::createEmptyNode(),
+                                                                                          Soprano::Node::createEmptyNode());
+
+            QList<Soprano::Node> inferedContexts;
+
+            Soprano::NodeIterator matchContexts = matchingStatements.iterateContexts();
+            while(matchContexts.next())
+            {
+
+              inferedContexts.append(matchContexts.current());
             }
-        }
 
-        return inferedStatementsCount;
+
+            Q_FOREACH(Soprano::Node context, inferedContexts)
+            {
+              parentModel()->removeAllStatements(
+                    context,
+                    Soprano::Node::createEmptyNode(),
+                    Soprano::Node::createEmptyNode(),
+                    Soprano::Node::createEmptyNode());
+
+              parentModel()->removeAllStatements(
+                    Soprano::Node::createEmptyNode(),
+                    Soprano::Node::createEmptyNode(),
+                    Soprano::Node::createEmptyNode(),
+                    context);
+            }
+          }
+          else if(rule.effectStyle() == "xor")
+          {
+            Soprano::StatementIterator matchingStatements = parentModel()->listStatements(inferedStatement.subject(),
+                                                                                          inferedStatement.predicate(),
+                                                                                          inferedStatement.object(),
+                                                                                          Soprano::Node::createEmptyNode());
+            while (matchingStatements.next())
+            {
+              parentModel()->removeStatement(matchingStatements.current());
+            }
+            parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                    Vocabulary::RDF::type(),
+                                                    Vocabulary::SIL::InferenceGraph(),
+                                                    Vocabulary::SIL::InferenceMetaData() ) );
+
+            parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                    Vocabulary::RDF::Statement(),
+                                                    compressStatement(inferedStatement),
+                                                    Vocabulary::SIL::InferenceMetaData() ) );
+
+            parentModel()->removeStatement(inferedStatement);
+
+            QList<Statement> sourceStatements = rule.bindPreconditions( binding );
+            for ( QList<Statement>::const_iterator sit = sourceStatements.constBegin();
+                  sit != sourceStatements.constEnd(); ++sit )
+            {
+              const Statement& sourceStatement = *sit;
+
+              if ( d->compressedStatements )
+              {
+                // remember the statement through a checksum (well, not really a checksum for now ;)
+                parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                        Vocabulary::SIL::sourceStatement(),
+                                                        compressStatement( sourceStatement ),
+                                                        Vocabulary::SIL::InferenceMetaData() ) );
+              }
+            }
+
+            return inferedStatementsCount;
+          }
+          else if(rule.effectStyle() == "negation")
+          {
+            Soprano::Node sourceMetaDataNode = createMetadataNode(rule.boundToStatement());
+
+            Soprano::Node inferencedMetaDataNode = createMetadataNode(inferedStatement);
+
+
+// WARNING: The inference is not working if we use    parentModel()->addStatement
+            FilterModel::addStatement(sourceMetaDataNode,
+                                      Vocabulary::RDF::isDisabled(),
+                                      inferencedMetaDataNode,
+                                      Vocabulary::SIL::InferenceMetaData());
+
+
+//             parentModel()->addStatement(inferencedMetaDataNode,
+//                                        Vocabulary::RDF::isDisabled(),
+//                                        Vocabulary::RDF::createAldebaranRessource("True"));
+
+//            parentModel()->removeStatement(Statement(inferedStatement.subject(),
+//                                                     inferedStatement.predicate(),
+//                                                     inferedStatement.object(),
+//                                                     Soprano::Node::createEmptyNode()));
+
+            removeStatement(Statement(inferedStatement.subject(),
+                                      inferedStatement.predicate(),
+                                      inferedStatement.object(),
+                                      Soprano::Node::createEmptyNode()));
+
+
+            return inferedStatementsCount;
+          }
+          else
+          {
+
+            parentModel()->addStatement( inferedStatement );
+          }
+
+
+          // write the metadata about the new inference graph into the inference metadata graph
+          // type of the new graph is sil:InferenceGraph
+          parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                  Vocabulary::RDF::type(),
+                                                  Vocabulary::SIL::InferenceGraph(),
+                                                  Vocabulary::SIL::InferenceMetaData() ) );
+
+          // add sourceStatements
+          QList<Statement> sourceStatements = rule.bindPreconditions( binding );
+
+          for ( QList<Statement>::const_iterator sit = sourceStatements.constBegin();
+                sit != sourceStatements.constEnd(); ++sit ) {
+            const Statement& sourceStatement = *sit;
+
+            if ( d->compressedStatements ) {
+              // remember the statement through a checksum (well, not really a checksum for now ;)
+              parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                      Vocabulary::SIL::sourceStatement(),
+                                                      compressStatement( sourceStatement ),
+                                                      Vocabulary::SIL::InferenceMetaData() ) );
+            }
+            else {
+              // remember the source statement as a source for our graph
+              parentModel()->addStatement( Statement( inferenceGraphUrl,
+                                                      Vocabulary::SIL::sourceStatement(),
+                                                      storeUncompressedSourceStatement( sourceStatement ),
+                                                      Vocabulary::SIL::InferenceMetaData() ) );
+            }
+          }
+
+          // remember the infered statements to recurse later on
+          if ( recurse ) {
+            inferedStatements << inferedStatement;
+          }
+        }
+      }
+      //             else {
+      //                 qDebug() << "Inferred statement is invalid (this is no error):" << inferedStatement;
+      //             }
     }
+
+
+    // We only recurse after finishing the loop since this will reset the bound statement
+    // in the rule which leads to a lot of confusion
+    if ( recurse && inferedStatementsCount ) {
+      foreach( const Statement& s, inferedStatements ) {
+        inferedStatementsCount += inferStatement( s, true );
+      }
+    }
+
+    return inferedStatementsCount;
+  }
+}
+
+bool Soprano::Inference::InferenceModel::xCheckVariablesValues(BindingSet binding)
+{
+  bool sameBinding = false;
+    qiLogError() << "###################";
+
+    QMap <QString, QString> sortedBindingMap;
+
+    Q_FOREACH(QString name, binding.bindingNames())
+    {
+    qiLogError() << "-------------------";
+          qiLogError() << name.toStdString();
+    qiLogError() << binding[name].toString().toStdString();
+
+    qiLogError() << "-------------------";
+      if(!sortedBindingMap.keys().contains(name) || sortedBindingMap[name] != binding[name].toString())
+        sortedBindingMap[name] = binding[name].toString();
+    }
+
+
+
+  Q_FOREACH(QString bindingName, sortedBindingMap.keys())
+  {
+//    qiLogError() << name.toStdString();
+//    qiLogError() << binding[name].toString().toStdString();
+
+    qiLogError() << bindingName.toStdString();
+    qiLogError() << sortedBindingMap[bindingName].toStdString();
+
+//    if (d->bindingMapHistory.values().contains(binding.value(name).toString()))
+    if (d->bindingMapHistory.values().contains(sortedBindingMap[bindingName]))
+    {
+      sameBinding = true;
+    }
+    else
+    {
+//      d->bindingMapHistory.insert(name, binding.value(name).toString());
+      d->bindingMapHistory.insert(bindingName, sortedBindingMap[bindingName]);
+    }
+  }
+    qiLogError() << "###################";
+  if(sameBinding)
+  {
+    d->bindingMapHistory.clear();
+    return true;
+  }
+  else
+  {
+    return false;
+  }
 }
 
 
@@ -442,3 +760,68 @@ QUrl Soprano::Inference::InferenceModel::storeUncompressedSourceStatement( const
     return sourceStatementUri;
 }
 
+Soprano::Node Soprano::Inference::InferenceModel::getMetadataNode(const Statement& sourceStatement)
+{
+  QString query = "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
+      "select ?metadata where {"
+      + "<" + sourceStatement.subject().toString() + ">" + " al:metadata ?metadata . \n"
+      + "<" + sourceStatement.predicate().toString() + ">" + " al:metadata ?metadata . \n"
+      + "<" + sourceStatement.object().toString() + ">" + " al:metadata ?metadata .}";
+
+  Soprano::QueryResultIterator it = executeQuery(query,
+                                                 Soprano::Query::QueryLanguageSparql);
+
+  Q_FOREACH(Soprano::BindingSet bs, it.allBindings())
+  {
+    Q_FOREACH(QString bindingName, bs.bindingNames())
+    {
+      return bs.value(bindingName);
+    }
+  }
+
+
+  return Soprano::Node();
+}
+
+Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const Statement& statement)
+{
+  Soprano::Node metaDataNode  = getMetadataNode(statement);
+  if(!metaDataNode.isEmpty())
+  {
+    return metaDataNode;
+  }
+
+  metaDataNode = Soprano::Node::createResourceNode(createRandomUri());
+
+  Soprano::Node metadataPredicate = Soprano::Node::createResourceNode(Vocabulary::RDF::metadataPredicate());
+
+  addStatement(statement.subject(),
+                              metadataPredicate,
+                              metaDataNode,
+                              Vocabulary::SIL::InferenceMetaData());
+
+  addStatement(statement.predicate(),
+                              metadataPredicate,
+                              metaDataNode,
+                              Vocabulary::SIL::InferenceMetaData());
+
+  addStatement(statement.object(),
+                              metadataPredicate,
+                              metaDataNode,
+                              Vocabulary::SIL::InferenceMetaData());
+  return metaDataNode;
+}
+
+void Soprano::Inference::InferenceModel::cleanMetadata(Soprano::Node metadataNode)
+{
+  if(parentModel()->listStatements(metadataNode,
+                                   Soprano::Node::createEmptyNode(),
+                                   Soprano::Node::createEmptyNode(),
+                                   Vocabulary::SIL::InferenceMetaData()).allStatements().size() == 0)
+  {
+    removeStatements(parentModel()->listStatements(Soprano::Node::createEmptyNode(),
+                                                                  Vocabulary::RDF::metadataPredicate(),
+                                                                  metadataNode,
+                                                                  Vocabulary::SIL::InferenceMetaData()).allStatements());
+  }
+}

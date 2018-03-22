@@ -24,6 +24,7 @@
 
 #include <QtCore/QUrl>
 #include <QtCore/QObject>
+#include <QtCore/QtPlugin>
 
 #include "serializer.h"
 #include "node.h"
@@ -35,6 +36,9 @@ namespace Soprano {
     {
     Q_OBJECT
     Q_INTERFACES(Soprano::Serializer)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+    Q_PLUGIN_METADATA(IID "org.soprano.plugins.Serializer/1.0")
+#endif
 
     public:
     NQuadSerializer();

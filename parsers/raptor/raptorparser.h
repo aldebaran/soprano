@@ -36,6 +36,9 @@ namespace Soprano {
       class Parser : public QObject, public Soprano::Parser { 
         Q_OBJECT
         Q_INTERFACES(Soprano::Parser)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+        Q_PLUGIN_METADATA(IID "org.soprano.plugins.Parser/1.0")
+#endif
 
     public:
         Parser();

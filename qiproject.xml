@@ -1,0 +1,13 @@
+<project name="soprano">
+  <!-- Add your name and e-mail here
+    <maintainer email="...">Your Name</maintainer>
+  -->
+
+    <!--    <depends buildtime="true" runtime="true" names="libqi libnaoqi rasqal raptor redland qt5"/> -->
+    <depends buildtime="true" runtime="true" names="libqi libnaoqi qt redland raptor rasqal"/>
+
+    <!-- Add your project dependencies here
+    <depends buildtime="true" runtime="true" names="foo" />
+    -->
+
+</project>

@@ -1,24 +1,22 @@
 project(soprano_raptor_parser)
 
-include_directories(
+include_directories(HEADERS
   ${soprano_SOURCE_DIR}
   ${soprano_core_SOURCE_DIR}
-  ${RAPTOR_INCLUDE_DIR}
 )
 
 set(raptor_parser_SRC
   raptorparser.cpp
 )
 
-add_library(soprano_raptorparser  MODULE ${raptor_parser_SRC})
+qi_create_lib(soprano_raptor_parser
+  SRC ${HEADERS}
+  ${raptor_parser_SRC}
+    DEPENDS QT5_CORE RAPTOR
+  SHARED
+  )
 
-target_link_libraries(soprano_raptorparser soprano ${RAPTOR_LIBRARIES})
-
-set_target_properties(soprano_raptorparser PROPERTIES
-  DEFINE_SYMBOL MAKE_RAPTORPARSER_LIB
-)
-
-install(TARGETS soprano_raptorparser ${PLUGIN_INSTALL_DIR})
+qi_stage_lib(soprano_raptor_parser)
 
 configure_file(raptorparser.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/raptorparser.desktop)
 

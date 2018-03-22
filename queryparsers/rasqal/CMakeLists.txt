@@ -15,21 +15,35 @@ set(rasqalqueryparser_SRC
   rasqalqueryparser.h
 )
 
-add_library(soprano_rasqalqueryparser MODULE ${rasqalqueryparser_SRC})
-
-target_link_libraries(soprano_rasqalqueryparser soprano ${RAPTOR_LIBRARIES} ${RASQAL_LIBRARIES} ${REDLAND_LIBRARIES})
-
-add_definitions(${REDLAND_CFLAGS})
-
-set_target_properties(soprano_rasqalqueryparser PROPERTIES
-        DEFINE_SYMBOL MAKE_RASQALQUERYPARSER_LIB
-)
-
-install(TARGETS soprano_rasqalqueryparser ${PLUGIN_INSTALL_DIR})
-
-configure_file(rasqalqueryparser.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/rasqalqueryparser.desktop)
-
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/rasqalqueryparser.desktop
-  DESTINATION ${DATA_INSTALL_DIR}/soprano/plugins
+qi_create_lib(soprano_rasqalqueryparser
+  SRC ${rasqalqueryparser_SRC}
+    DEPENDS QI QT5_CORE RASQAL
+  #  DEPENDS QI QT5_CORE
+  SHARED
   )
+
+configure_file(rasqalqueryparser.desktop.cmake ${QI_SDK_DIR}/${QI_SDK_SHARE}/rasqalqueryparser.desktop)
+
+qi_install_data(
+  ${QI_SDK_DIR}/${QI_SDK_SHARE}/dialog/rasqalqueryparser.desktop
+  SUBFOLDER "dialog"
+  )
+
+#add_library(soprano_rasqalqueryparser MODULE ${rasqalqueryparser_SRC})
+#
+#target_link_libraries(soprano_rasqalqueryparser soprano ${RAPTOR_LIBRARIES} ${RASQAL_LIBRARIES} ${REDLAND_LIBRARIES})
+#
+#add_definitions(${REDLAND_CFLAGS})
+#
+#set_target_properties(soprano_rasqalqueryparser PROPERTIES
+#        DEFINE_SYMBOL MAKE_RASQALQUERYPARSER_LIB
+#)
+#
+#install(TARGETS soprano_rasqalqueryparser ${PLUGIN_INSTALL_DIR})
+#
+#configure_file(rasqalqueryparser.desktop.cmake ${CMAKE_CURRENT_BINARY_DIR}/rasqalqueryparser.desktop)
+#
+#install(FILES
+#  ${CMAKE_CURRENT_BINARY_DIR}/rasqalqueryparser.desktop
+#  DESTINATION ${DATA_INSTALL_DIR}/soprano/plugins
+#  )

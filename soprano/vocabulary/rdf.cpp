@@ -40,7 +40,10 @@ public:
           rdf_rest( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#rest", QUrl::StrictMode ) ),
           rdf_subject( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#subject", QUrl::StrictMode ) ),
           rdf_type( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#type", QUrl::StrictMode ) ),
-          rdf_value( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#value", QUrl::StrictMode ) ) {
+          rdf_value( QUrl::fromEncoded( "http://www.w3.org/1999/02/22-rdf-syntax-ns#value", QUrl::StrictMode ) ),
+          rdf_metadataPredicate( QUrl::fromEncoded( "http://aldebaran.org/learning#metadata", QUrl::StrictMode ) ),
+          rdf_isDisabled( QUrl::fromEncoded( "http://aldebaran.org/learning#isDisabled", QUrl::StrictMode ) )
+    {
     }
 
     QUrl rdf_namespace;
@@ -59,6 +62,8 @@ public:
     QUrl rdf_subject;
     QUrl rdf_type;
     QUrl rdf_value;
+    QUrl rdf_metadataPredicate;
+    QUrl rdf_isDisabled;
 };
 
 QThreadStorage<RdfPrivate*> qts_rdf;
@@ -147,3 +152,31 @@ QUrl Soprano::Vocabulary::RDF::value()
 {
     return s_rdf()->rdf_value;
 }
+
+QUrl Soprano::Vocabulary::RDF::metadataPredicate()
+{
+    return s_rdf()->rdf_metadataPredicate;
+}
+
+QUrl Soprano::Vocabulary::RDF::isDisabled()
+{
+    return s_rdf()->rdf_isDisabled;
+}
+
+QUrl Soprano::Vocabulary::RDF::createAldebaranRessource(QString ressourceName)
+{
+  return QUrl("http://aldebaran.org/learning#"+ressourceName);
+}
+
+//QString Soprano::Vocabulary::RDF::getMetadataQuery(const QString& subject,
+//                                                const QString& predicate,
+//                                                const QString& object)
+//{
+//  return "PREFIX al:<"+Vocabulary::RDF::createAldebaranRessource("").toString()+"> \n"
+//      "select ?sourceStatement where {"
+//      + "<" + subject + ">" + " al:metadata ?metadata . \n"
+//      + "<" + predicate + ">" + " al:metadata ?metadata . \n"
+//      + "<" + object + ">" + " al:metadata ?metadata . \n"
+//      "?sourceStatement al:isDisabled ?metadata .} ";
+//}
+

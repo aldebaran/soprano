@@ -1,7 +1,7 @@
 project(soprano_parsers)
 
-if(BUILD_RAPTOR_PARSER)
+#if(BUILD_RAPTOR_PARSER)
   add_subdirectory(raptor)
-endif()
+  #endif()
 
 add_subdirectory(nquads)

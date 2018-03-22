@@ -26,6 +26,7 @@
 
 #include <QtCore/QObject>
 #include <QtCore/QMutex>
+#include <QtCore/QtPlugin>
 
 namespace Soprano
 {
@@ -35,6 +36,9 @@ namespace Soprano
         {
             Q_OBJECT
             Q_INTERFACES(Soprano::Backend)
+#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
+            Q_PLUGIN_METADATA(IID "org.soprano.plugins.Backend/2.1")
+#endif
 
         public:
             BackendPlugin();

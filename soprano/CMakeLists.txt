@@ -1,16 +1,24 @@
 project(soprano_core)
+find_package(qibuild)
+include(qibuild/modules/qt5-tools)
 
 # overriding QT_USE_FILE since that includes QT_INCLUDE_DIR before soprano headers
-set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
+#set(CMAKE_INCLUDE_DIRECTORIES_BEFORE ON)
 include_directories(BEFORE
-  ${soprano_SOURCE_DIR}
-  ${soprano_core_SOURCE_DIR}/util
-  ${soprano_core_SOURCE_DIR}/query
-  ${soprano_core_SOURCE_DIR}/vocabulary
+  #  ${soprano_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}
+  ${CMAKE_CURRENT_SOURCE_DIR}/util
+  ${CMAKE_CURRENT_SOURCE_DIR}/query
+  ${CMAKE_CURRENT_SOURCE_DIR}/vocabulary
+  ${CMAKE_CURRENT_BINARY_DIR}
   )
 
+
 configure_file(soprano-config.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/soprano-config.h)
-configure_file(version.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/version.h)
+#configure_file(version.h.cmake ${CMAKE_CURRENT_BINARY_DIR}/version.h)
+#configure_file(version.h.cmake ${CMAKE_CURRENT_SOURCE_DIR}/version.h)
+
+add_definitions(-DUSING_SOPRANO_NRLMODEL_UNSTABLE_API)
 
 set(soprano_SRCS
   queryresultiterator.cpp
@@ -46,7 +54,7 @@ set(soprano_SRCS
   locator.cpp
   locator.h
   datetime.cpp
-  version.cpp
+  #  version.cpp
   filtermodel.h
   filtermodel.cpp
   storagemodel.h
@@ -74,6 +82,7 @@ set(soprano_SRCS
   inference/inferencemodel.h
   inference/inferencemodel.cpp
   inference/inferenceruleparser.cpp
+  nrlmodel.h
   nrlmodel.cpp
   inifile.cpp
   desktopfile.cpp
@@ -97,79 +106,12 @@ set(soprano_SRCS
   util/asyncquery.cpp
   )
 
-add_library(soprano ${LIBRARY_TYPE} ${soprano_SRCS})
-
-if(QT5_BUILD)
-  target_link_libraries(soprano ${Qt5Core_LIBRARIES})
-else()
-  target_link_libraries(soprano ${QT_QTCORE_LIBRARY})
-endif()
-
-set_target_properties(soprano PROPERTIES
-  VERSION 4.3.0
-  SOVERSION ${SOPRANO_NON_GENERIC_SOVERSION}
-  DEFINE_SYMBOL MAKE_SOPRANO_LIB
-  INSTALL_NAME_DIR ${LIB_INSTALL_DIR}
+#CROSS-COMPILATION
+qi_create_lib(soprano
+  SRC     ${FILES}
+  ${soprano_SRCS}
+  DEPENDS QI QT5_CORE QT5_NETWORK QT5_DBUS QT5_XML
+  SHARED
   )
 
-install(TARGETS soprano EXPORT SopranoExport ${INSTALL_TARGETS_DEFAULT_ARGS})
-
-install(FILES
-  ${CMAKE_CURRENT_BINARY_DIR}/version.h
-  backend.h
-  bindingset.h
-  datastream.h
-  error.h
-  filtermodel.h
-  global.h
-  graph.h
-  inference/inferencemodel.h
-  inference/inferencerule.h
-  inference/inferenceruleparser.h
-  inference/inferenceruleset.h
-  inference/nodepattern.h
-  inference/sil.h
-  inference/statementpattern.h
-  iterator.h
-  iteratorbackend.h
-  languagetag.h
-  literalvalue.h
-  locator.h
-  model.h
-  node.h
-  nodeiterator.h
-  nrlmodel.h
-  parser.h
-  plugin.h
-  pluginmanager.h
-  queryresultiterator.h
-  queryresultiteratorbackend.h
-  rdfschemamodel.h
-  serializer.h
-  soprano.h
-  soprano_export.h
-  sopranomacros.h
-  sopranotypes.h
-  statement.h
-  statementiterator.h
-  storagemodel.h
-  util/asyncmodel.h
-  util/asyncquery.h
-  util/asyncresult.h
-  util/dummymodel.h
-  util/mutexmodel.h
-  util/readonlymodel.h
-  util/signalcachemodel.h
-  util/simplenodeiterator.h
-  util/simplestatementiterator.h
-  vocabulary.h
-  vocabulary/nao.h
-  vocabulary/nrl.h
-  vocabulary/owl.h
-  vocabulary/rdf.h
-  vocabulary/rdfs.h
-  vocabulary/xesam.h
-  vocabulary/xsd.h
-  DESTINATION ${INCLUDE_INSTALL_DIR}/soprano
-  COMPONENT Devel
-)
+qi_stage_lib(soprano)

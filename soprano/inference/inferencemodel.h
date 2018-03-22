@@ -30,6 +30,7 @@ class QUrl;
 namespace Soprano {
 
     class Statement;
+    class BindingSet;
 
     namespace Inference {
 
@@ -106,6 +107,11 @@ namespace Soprano {
              */
             void setRules( const QList<Rule>& rules );
 
+            /**
+             * Retrieve the rules
+             */
+            QList<Soprano::Inference::Rule> getRules();
+
             using FilterModel::addStatement;
             using FilterModel::removeStatement;
             using FilterModel::removeAllStatements;
@@ -159,6 +165,8 @@ namespace Soprano {
              */
             void setOptimizedQueriesEnabled( bool b );
 
+            Soprano::Node createMetadataNode(const Statement& statement);
+
         private:
             /**
              * Create all infered statements that result from adding statement. Calls inferRule.
@@ -181,6 +189,19 @@ namespace Soprano {
             int inferRule( const Rule& rule, bool recurse );
 
             /**
+             * Check that variables with differents name doesn't have the same value
+             * That prevents the rule (?a is ?b), (?c is ?b) -> (.....) to be triggered
+             * when just one statement (ex dog is pet) is added
+             * There might be some unwanted sides effects in the inference
+             * but none has been found
+             *
+             * \param rule The bindings of the inference rule
+             *
+             * \return true if all differents bindings have differentes values
+             */
+            bool xCheckVariablesValues(BindingSet bindings);
+
+            /**
              * Get a list of all inference graphs (i.e. graphs that contain infered statements) that have statement 
              * as a source.
              */
@@ -191,6 +212,13 @@ namespace Soprano {
              * \return The URI of the uncompressed source statement resource.
              */
             QUrl storeUncompressedSourceStatement( const Statement& sourceStatement );
+
+            Soprano::Node getMetadataNode(const Statement& statement);
+
+
+            QList<Soprano::Node> getDisablingMetadata(const Soprano::Node& statementMetadata);
+
+            void cleanMetadata(Soprano::Node metadataNode);
 
             class Private;
             Private* const d;
