@@ -181,13 +181,6 @@ QDate Soprano::DateTime::fromDateString( const QString& s )
 
 QDateTime Soprano::DateTime::fromDateTimeString( const QString& s )
 {
-  // supporting function "now()" in sparql
-  QString stringCurrentDateTime = s;
-
-  QDateTime dateTime = QDateTime::fromString(stringCurrentDateTime.split(".").first(), "yyyy-MM-ddTHH:mm:ss");
-  if(dateTime.isValid())
-    return dateTime;
-
     // we support both the standard form and the often seen form which uses
     // a space instead of the T.
     int pos = s.indexOf('T');
@@ -244,9 +237,6 @@ QString Soprano::DateTime::toString( const QDate& d )
 
 QString Soprano::DateTime::toString( const QDateTime& dt )
 {
- // We go through this when we query a date from the database (we removed UTC conversion).
-
-//    QDateTime utc = dt.toUTC();
-    QDateTime utc = dt;
-    return toString( utc.date() ) + 'T' + toString( utc.time() );
+    QDateTime utc = dt.toUTC();
+    return toString( utc.date() ) + 'T' + toString( utc.time() ) + 'Z';
 }
