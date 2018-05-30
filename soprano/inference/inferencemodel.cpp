@@ -905,11 +905,6 @@ QString Soprano::Inference::InferenceModel::xUrlConversion(const Soprano::Node& 
 
 Soprano::Node Soprano::Inference::InferenceModel::createMetadataNode(const Statement& statement)
 {
-  if(!statement.object().isResource())
-  {
-    throw std::runtime_error("Only statement with object of type ResourceNode have a meta node");
-  }
-
   Soprano::Node metaDataNode  = getMetadataNode(statement);
   if(!metaDataNode.isEmpty())
   {
