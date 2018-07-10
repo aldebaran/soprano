@@ -325,12 +325,6 @@ void Soprano::PluginManager::loadAllPlugins()
 void Soprano::PluginManager::loadPlugin( const QString& path )
 {
     SopranoPluginFile f;
-    qiLogError() << "=============================";
-    qiLogError() << "======PATH===========";
-    qiLogError() << path.toStdString();
-    qiLogError() << "=============================";
-    qiLogError() << "=============================";
-
     if ( f.open( path ) ) {
 //        qDebug() << "(Soprano::PluginManager) found plugin file" << path;
 //
@@ -346,14 +340,6 @@ void Soprano::PluginManager::loadPlugin( const QString& path )
 //            QString libPath = QString(qi::Application::realProgram()).split("/bin")[0]+ "/lib/lib" + f.library() + ".so";
 
             QString libPath = path.split("/share/dialog")[0]+ "/lib/lib" + f.library() + ".so";
-
-                qiLogError() << "=============================";
-    qiLogError() << "LIB PATH";
-    qiLogError() << libPath.toStdString();
-    qiLogError() << "=============================";
-    qiLogError() << "=============================";
-
-
 
             if ( libPath.isEmpty() ) {
                 qDebug() << "Failed to find the library for plugin" << f.pluginName() << "(" << f.library() << ")";
