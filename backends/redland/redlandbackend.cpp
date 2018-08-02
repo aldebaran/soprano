@@ -37,7 +37,7 @@
 
 #include <qi/log.hpp>
 
-qiLogCategory("redlandbackend");
+qiLogCategory("Soprano.RedLandBackend");
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(soprano_redlandbackend, Soprano::Redland::BackendPlugin)

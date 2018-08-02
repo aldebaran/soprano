@@ -25,7 +25,7 @@
 #include "storagemodel.h"
 #include "qi/log.hpp"
 
-qiLogCategory("global");
+qiLogCategory("Soprano.Global");
 
 static const Soprano::Backend* s_defaultBackend = 0;
 

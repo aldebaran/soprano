@@ -40,7 +40,7 @@
 #include <qi/log.hpp>
 #include <QUuid>
 
-qiLogCategory("redlandmodel");
+qiLogCategory("Soprano.RedLandModel");
 
 
 namespace {
@@ -380,6 +380,10 @@ Soprano::Error::ErrorCode Soprano::Redland::RedlandModel::addStatement( const St
     d->readWriteLock.unlock();
 
     if ( added ) {
+        qiLogVerbose() << "Statement added ("
+                       << statement.subject().toString().toStdString() << ", "
+                       << statement.predicate().toString().toStdString() << ", "
+                       << statement.object().toString().toStdString() << ")";
         emit statementAdded( statement );
         emit statementsAdded();
         xStatementAdded( statement );

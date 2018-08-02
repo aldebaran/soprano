@@ -36,7 +36,7 @@
 
 #include <qi/log.hpp>
 
-qiLogCategory("pluginmanager");
+qiLogCategory("Soprano.PluginManager");
 
 //#include "qi/application.hpp"
 
@@ -324,14 +324,10 @@ void Soprano::PluginManager::loadAllPlugins()
 
 void Soprano::PluginManager::loadPlugin( const QString& path )
 {
-    SopranoPluginFile f;
-    qiLogError() << "=============================";
-    qiLogError() << "======PATH===========";
-    qiLogError() << path.toStdString();
-    qiLogError() << "=============================";
-    qiLogError() << "=============================";
+  SopranoPluginFile f;
+  qiLogVerbose() << "Plugin file path: " << path.toStdString();
 
-    if ( f.open( path ) ) {
+  if ( f.open( path ) ) {
 //        qDebug() << "(Soprano::PluginManager) found plugin file" << path;
 //
 //        if ( f.sopranoVersion().left( f.sopranoVersion().indexOf( '.' ) ).toUInt() == Soprano::versionMajor() ) {
@@ -345,21 +341,15 @@ void Soprano::PluginManager::loadPlugin( const QString& path )
 //CROSS-COMPILATION
 //            QString libPath = QString(qi::Application::realProgram()).split("/bin")[0]+ "/lib/lib" + f.library() + ".so";
 
-            QString libPath = path.split("/share/dialog")[0]+ "/lib/lib" + f.library() + ".so";
+  QString libPath = path.split("/share/dialog")[0]+ "/lib/lib" + f.library() + ".so";
 
-                qiLogError() << "=============================";
-    qiLogError() << "LIB PATH";
-    qiLogError() << libPath.toStdString();
-    qiLogError() << "=============================";
-    qiLogError() << "=============================";
+  qiLogVerbose() << "Plugin library path: " << libPath.toStdString();
 
-
-
-            if ( libPath.isEmpty() ) {
-                qDebug() << "Failed to find the library for plugin" << f.pluginName() << "(" << f.library() << ")";
-                qiLogError() << "Failed to find the library for plugin" << f.pluginName().toStdString() << "(" << f.library().toStdString() << ")";
-                return;
-            }
+  if ( libPath.isEmpty() ) {
+    qDebug() << "Failed to find the library for plugin" << f.pluginName() << "(" << f.library() << ")";
+    qiLogError() << "Failed to find the library for plugin" << f.pluginName().toStdString() << "(" << f.library().toStdString() << ")";
+        return;
+    }
 
             QString type = f.serviceTypes();
             QString name = f.pluginName();
