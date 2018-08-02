@@ -27,7 +27,6 @@
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QSharedData>
-#include <QtCore/QDebug>
 
 
 Soprano::Redland::NodeIteratorBackend::NodeIteratorBackend( const RedlandModel* model, librdf_iterator* it )
