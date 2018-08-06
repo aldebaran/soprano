@@ -39,7 +39,7 @@
 
 #include <qi/log.hpp>
 
-qiLogCategory("inferencemodel");
+qiLogCategory("Soprano.InferenceModel");
 
 QString learningDomain = "com.aldebaran.learning";
 

@@ -28,7 +28,6 @@
 
 #include <QtCore/QtGlobal>
 #include <QtCore/QSharedData>
-#include <QtCore/QDebug>
 
 
 Soprano::Redland::RedlandStatementIterator::RedlandStatementIterator( const RedlandModel* model, librdf_stream *s, const Node& forceContext )

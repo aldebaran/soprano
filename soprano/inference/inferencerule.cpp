@@ -28,9 +28,6 @@
 #include <QtCore/QStringList>
 #include <QtCore/QDebug>
 #include <QtCore/QUuid>
-#include <qi/log.hpp>
-
-qiLogCategory("inferencerule");
 
 
 class Soprano::Inference::Rule::Private : public QSharedData

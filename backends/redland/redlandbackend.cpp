@@ -37,7 +37,7 @@
 
 #include <qi/log.hpp>
 
-qiLogCategory("redlandbackend");
+qiLogCategory("Soprano.RedLandBackend");
 
 #if QT_VERSION < QT_VERSION_CHECK(5, 0, 0)
 Q_EXPORT_PLUGIN2(soprano_redlandbackend, Soprano::Redland::BackendPlugin)
@@ -112,7 +112,8 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
 
     QString os = createRedlandOptionString( redlandOptions );
 
-    qDebug() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType << "with options" << os;
+    qiLogDebug() << "(Soprano::Redland::BackendPlugin) creating model of type"
+                 << storageType.toStdString() << "with options" << os.toStdString();
 
 //    World* world = new World();
     World* world = World::theWorld();
@@ -194,7 +195,8 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
 
     QString os = createRedlandOptionString( redlandOptions );
 
-    qDebug() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType << "with options" << os;
+    qiLogDebug() << "(Soprano::Redland::BackendPlugin) creating model of type"
+                 << storageType.toStdString() << "with options" << os.toStdString();
 
 //    World* world = new World();
     World* world = World::theWorld();
@@ -276,7 +278,8 @@ Soprano::StorageModel* Soprano::Redland::BackendPlugin::createModel( const Backe
 
     QString os = createRedlandOptionString( redlandOptions );
 
-    qDebug() << "(Soprano::Redland::BackendPlugin) creating model of type" << storageType << "with options" << os;
+    qiLogDebug() << "(Soprano::Redland::BackendPlugin) creating model of type"
+                 << storageType.toStdString() << "with options" << os.toStdString();
 
 //    World* world = new World();
     World* world = World::theWorld();

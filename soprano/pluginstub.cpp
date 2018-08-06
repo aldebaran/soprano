@@ -32,7 +32,7 @@
 
 #include <qi/log.hpp>
 
-qiLogCategory("pluginstub");
+qiLogCategory("Soprano.PluginStub");
 
 class Soprano::PluginStub::Private : public QSharedData
 {

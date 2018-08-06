@@ -31,7 +31,7 @@
 #include <qi/log.hpp>
 #include <QPointer>
 
-qiLogCategory("filtermodel");
+qiLogCategory("Soprano.FilterModel");
 
 class Soprano::FilterModel::Private
 {
